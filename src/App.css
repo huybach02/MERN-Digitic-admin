@@ -1,38 +1,76 @@
-.App {
-  text-align: center;
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body{
+  font-family: 'Roboto', sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+:root {
+  --color-212529: #212529;
+  --color-ffd333: #ffd333;
+  --color-47ad24: #47ad24;
+  --color-e52e2e: #e52e2e;
+  --color-828599: #828599;
+  --color-3d464d: #ed464d;
+  --color-c3d4da: #ced4da;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.green {
+  color: var(--color-47ad24);
+  font-size: 24px;
+  font-family: Roboto !important;
+}
+.red {
+  color: var(--color-e52e2e);
+  font-size: 24px;
+  font-family: Roboto !important;
 }
 
-.App-header {
-  background-color: #282c34;
+.shadow-main{
+  box-shadow: 0 0 10px #0000001a;
+}
+
+.ant-layout{
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+}
+.sm-logo{
+  cursor: default;
+}
+.lg-logo{
+  cursor: default;
+}
+.ant-layout-sider-collapsed .sm-logo {
+  display: none;
+}
+.ant-layout-sider-collapsed .lg-logo {
+  display: none;
 }
 
-.App-link {
-  color: #61dafb;
+main {
+  height: 85vh;
+  overflow-y: scroll;
+  background-color: transparent !important;
 }
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+main::-webkit-scrollbar {
+  width: 0px;
+}
+.ant-menu-title-content {
+  font-size: 16px;
+}
+.ant-layout-header h5 {
+  line-height: 20px;
+  font-size: 14px;
+}
+.ant-layout-header p {
+  line-height: 20px;
+  font-size: 13px;
+}
+.ant-layout-header div .badge {
+  top: 16px;
+  right: -6px;
+}
+.quill{
+  background-color: white;
 }
