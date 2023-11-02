@@ -1,5 +1,10 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {Table} from "antd";
+import {useDispatch, useSelector} from "react-redux";
+import {Link} from "react-router-dom";
+import {AiFillEdit, AiFillDelete} from "react-icons/ai";
+import {getAllBrands} from "../features/brands/brandSlice";
+import {getAllBlogs} from "../features/blogs/blogSlice";
 
 const columns = [
   {
@@ -7,34 +12,92 @@ const columns = [
     dataIndex: "key",
   },
   {
-    title: "Name",
-    dataIndex: "name",
+    title: "Thumb",
+    dataIndex: "thumb",
   },
   {
-    title: "Product",
-    dataIndex: "product",
+    title: "Title",
+    dataIndex: "title",
+    sorter: (a, b) => a.title.localeCompare(b.title),
+    sortDirections: ["descend", "ascend"],
   },
   {
-    title: "Status",
-    dataIndex: "status",
+    title: "Category",
+    dataIndex: "category",
+    sorter: (a, b) => a.category.localeCompare(b.category),
+    sortDirections: ["descend", "ascend"],
+  },
+  {
+    title: "Views",
+    dataIndex: "views",
+    sorter: (a, b) => a.views - b.views,
+    sortDirections: ["descend", "ascend"],
+  },
+  {
+    title: "Likes",
+    dataIndex: "likes",
+    sorter: (a, b) => a.likes - b.likes,
+    sortDirections: ["descend", "ascend"],
+  },
+  {
+    title: "Dislikes",
+    dataIndex: "dislikes",
+    sorter: (a, b) => a.dislikes - b.dislikes,
+    sortDirections: ["descend", "ascend"],
+  },
+  {
+    title: "Actions",
+    dataIndex: "actions",
   },
 ];
-const data1 = [];
-for (let i = 1; i < 46; i++) {
-  data1.push({
-    key: i,
-    name: `Edward King ${i}`,
-    product: 32,
-    status: `London, Park Lane no. ${i}`,
-  });
-}
 
 const BlogList = () => {
+  const dispatch = useDispatch();
+
+  const {blogs, isLoading, isError, isSuccess, msg} = useSelector(
+    (state) => state.blogs
+  );
+
+  const data = blogs.map((item, index) => ({
+    key: index + 1,
+    thumb: (
+      <>
+        <img
+          style={{maxWidth: "80px", maxHeight: "80px"}}
+          src={item?.image}
+          alt=""
+        />
+      </>
+    ),
+    title: item?.title?.charAt(0).toUpperCase() + item?.title?.slice(1),
+    category:
+      item?.category?.charAt(0).toUpperCase() + item?.category?.slice(1),
+    views: item?.numViews,
+    likes: <span className="text-success fw-bold">{item?.likes?.length}</span>,
+    dislikes: (
+      <span className="text-danger fw-bold">{item?.dislikes?.length}</span>
+    ),
+    actions: (
+      <>
+        <Link to="/" className="fs-4 text-primary">
+          <AiFillEdit />
+        </Link>
+        <Link className="ms-4 fs-4 text-danger" to="/">
+          <AiFillDelete />
+        </Link>
+      </>
+    ),
+  }));
+
+  useEffect(() => {
+    dispatch(getAllBlogs());
+  }, []);
+
   return (
     <div>
       <h3 className="mb-4 title">Blogs List</h3>
       <div>
-        <Table columns={columns} dataSource={data1} />
+        <Table columns={columns} dataSource={data} />
       </div>
     </div>
   );

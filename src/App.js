@@ -20,6 +20,8 @@ import AddColor from "./pages/AddColor";
 import AddCategory from "./pages/AddCategory";
 import AddBrand from "./pages/AddBrand";
 import AddProduct from "./pages/AddProduct";
+import {ToastContainer} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -55,6 +57,8 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+
+      <ToastContainer />
     </div>
   );
 }

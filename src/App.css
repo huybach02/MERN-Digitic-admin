@@ -74,3 +74,26 @@ main::-webkit-scrollbar {
 .quill{
   background-color: white;
 }
+.error{
+  color: #e52e2e;
+  padding-left: 5px;
+  font-style: italic;
+  padding-top: 8px;
+  font-size: 14px;
+}
+thead .ant-table-cell{
+  font-size: 18px;
+}
+.ant-table-thead .ant-table-cell{
+  background-color: #d2e3fc !important;
+
+}
+tbody .ant-table-cell{
+  font-size: 16px;
+}
+.ant-table-content table{
+  text-align: center;
+}
+.ant-table-content .ant-table-thead .ant-table-cell{
+  text-align: center;
+}
