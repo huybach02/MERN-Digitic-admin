@@ -34,13 +34,13 @@ const columns = [
     sortDirections: ["descend", "ascend"],
   },
   {
-    title: "Likes",
+    title: "Like",
     dataIndex: "likes",
     sorter: (a, b) => a.likes - b.likes,
     sortDirections: ["descend", "ascend"],
   },
   {
-    title: "Dislikes",
+    title: "Dislike",
     dataIndex: "dislikes",
     sorter: (a, b) => a.dislikes - b.dislikes,
     sortDirections: ["descend", "ascend"],
@@ -58,7 +58,7 @@ const BlogList = () => {
     (state) => state.blogs
   );
 
-  const data = blogs.map((item, index) => ({
+  const data = blogs?.map((item, index) => ({
     key: index + 1,
     thumb: (
       <>
@@ -73,10 +73,8 @@ const BlogList = () => {
     category:
       item?.category?.charAt(0).toUpperCase() + item?.category?.slice(1),
     views: item?.numViews,
-    likes: <span className="text-success fw-bold">{item?.likes?.length}</span>,
-    dislikes: (
-      <span className="text-danger fw-bold">{item?.dislikes?.length}</span>
-    ),
+    likes: item?.likes?.length,
+    dislikes: item?.dislikes?.length,
     actions: (
       <>
         <Link to="/" className="fs-4 text-primary">

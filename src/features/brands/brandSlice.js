@@ -39,7 +39,7 @@ export const brandSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
-        state.customers = null;
+        state.brands = null;
         state.msg = action.payload;
       });
   },

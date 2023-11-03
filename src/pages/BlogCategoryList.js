@@ -32,7 +32,7 @@ const BlogCategoryList = () => {
     (state) => state.blogCategories
   );
 
-  const data = blogCategories.map((item, index) => ({
+  const data = blogCategories?.map((item, index) => ({
     key: index + 1,
     name: item?.title?.charAt(0).toUpperCase() + item?.title?.slice(1),
     actions: (

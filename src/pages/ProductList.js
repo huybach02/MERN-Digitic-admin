@@ -57,7 +57,7 @@ const ProductList = () => {
     (state) => state.products
   );
 
-  const data = products.map((item, index) => ({
+  const data = products?.map((item, index) => ({
     key: index + 1,
     image: (
       <>

@@ -3,7 +3,6 @@ import {Table} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 import {AiFillEdit, AiFillDelete} from "react-icons/ai";
-import {getAllBrands} from "../features/brands/brandSlice";
 import {getAllColors} from "../features/colors/colorSlice";
 
 const columns = [
@@ -32,7 +31,7 @@ const ColorList = () => {
     (state) => state.colors
   );
 
-  const data = colors.map((item, index) => ({
+  const data = colors?.map((item, index) => ({
     key: index + 1,
     name: item?.title?.charAt(0).toUpperCase() + item?.title?.slice(1),
     actions: (

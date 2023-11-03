@@ -7,10 +7,11 @@ const getUserFromLocalStorage = localStorage.getItem("user")
 
 const initialState = {
   user: getUserFromLocalStorage,
+  orders: [],
   isError: false,
   isLoading: false,
   isSuccess: false,
-  msg: "",
+  msg: null,
 };
 
 export const login = createAsyncThunk(
@@ -24,30 +25,70 @@ export const login = createAsyncThunk(
   }
 );
 
+export const getAllOrders = createAsyncThunk(
+  "auth/get-orders",
+  async (thunkAPI) => {
+    try {
+      return await authServices.getAllOrders();
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    logout: (state) => {
+      state.user = null;
+      state.isError = false;
+      state.isLoading = false;
+      state.isSuccess = false;
+      state.msg = null;
+      localStorage.removeItem("user");
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(login.pending, (state) => {
         state.isLoading = true;
+        state.isError = false;
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
+        state.isError = false;
         state.user = action.payload;
-        state.message = "success";
+        state.msg = null;
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.isSuccess = false;
-        state.isError = true;
+        state.isError = action.error && true;
         state.user = null;
-        state.message = action.error;
+        state.msg = null;
+      })
+      .addCase(getAllOrders.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getAllOrders.fulfilled, (state, action) => {
+        console.log("action: ", action);
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.orders = action.payload?.data;
+        state.msg = null;
+      })
+      .addCase(getAllOrders.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = false;
+        state.isError = action.error && true;
+        state.orders = null;
+        state.msg = null;
       });
   },
 });
 
 export default authSlice.reducer;
-export const {} = authSlice.actions;
+export const {logout} = authSlice.actions;

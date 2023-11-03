@@ -46,7 +46,7 @@ const Customers = () => {
     (state) => state.customers
   );
 
-  const data = customers.map((item, index) => ({
+  const data = customers?.map((item, index) => ({
     key: index + 1,
     name: `${item?.firstname} ${item?.lastname}`,
     email: item?.email,

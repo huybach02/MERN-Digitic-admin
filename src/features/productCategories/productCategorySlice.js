@@ -39,7 +39,7 @@ export const productCategoriesSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
-        state.customers = null;
+        state.productCategories = null;
         state.msg = action.payload;
       });
   },

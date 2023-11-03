@@ -97,3 +97,13 @@ tbody .ant-table-cell{
 .ant-table-content .ant-table-thead .ant-table-cell{
   text-align: center;
 }
+.pointer{
+  cursor: pointer;
+}
+.enquiry-content{
+  width: 600px ;
+  overflow: auto;
+  text-align: justify;
+  margin-left: auto;
+  margin-right: auto;
+}

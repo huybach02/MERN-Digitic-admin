@@ -39,7 +39,7 @@ export const blogCategorySlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;
-        state.customers = null;
+        state.blogCategories = null;
         state.msg = action.payload;
       });
   },

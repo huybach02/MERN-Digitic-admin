@@ -31,14 +31,14 @@ const Login = () => {
     },
   });
   useEffect(() => {
-    if (user.success) {
+    if (user?.success) {
       navigate("/admin");
       toast.success(user.msg);
-    } else {
-      navigate("");
-      toast.error("Email or password is incorrect!");
     }
-  }, [user, isSuccess]);
+    if (isError) {
+      toast.error("Email or password is invalid");
+    }
+  }, [user, isError]);
   return (
     <div className="py-5" style={{background: "#ccc", minHeight: "100vh"}}>
       <div className="my-5 w-25 bg-white rounded-3 mx-auto p-4">

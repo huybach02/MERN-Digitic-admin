@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Layout, Menu, theme} from "antd";
 import {MenuFoldOutlined, MenuUnfoldOutlined} from "@ant-design/icons";
 import {
@@ -14,15 +14,32 @@ import {IoIosNotifications} from "react-icons/io";
 import {FaClipboardList, FaBloggerB} from "react-icons/fa";
 import {SiBrandfolder} from "react-icons/si";
 import {BiCategoryAlt} from "react-icons/bi";
+import {useDispatch, useSelector} from "react-redux";
+import {logout} from "../features/auth/authSlice";
+import {toast} from "react-toastify";
 
 const {Header, Content, Sider} = Layout;
 
 const MainLayout = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const {user, isLoading, isError, isSuccess, msg} = useSelector(
+    (state) => state.auth
+  );
+
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: {colorBgContainer},
   } = theme.useToken();
-  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user?.success) {
+      navigate("/");
+      toast.error("You don't have permission for this resource!");
+    }
+  }, [user]);
+
   return (
     <Layout>
       <Sider
@@ -198,13 +215,16 @@ const MainLayout = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    className="dropdown-item py-1 mb-1"
+                  <span
+                    className="dropdown-item py-1 mb-1 pointer"
                     style={{height: "auto", lineHeight: "20px"}}
-                    to="/"
+                    onClick={() => {
+                      dispatch(logout());
+                      navigate("/");
+                    }}
                   >
                     Sign out
-                  </Link>
+                  </span>
                 </li>
               </div>
             </div>
