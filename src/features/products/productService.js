@@ -1,14 +1,20 @@
-import axios from "axios";
-import {base_url} from "../../utils/base_url";
+import axiosConfig from "../../utils/axiosConfig";
 
 const getAllProducts = async () => {
-  const res = await axios.get(`${base_url}/product/`);
+  const res = await axiosConfig.get(`/product`);
+
+  return res.data.data;
+};
+
+const createProducts = async (data) => {
+  const res = await axiosConfig.post(`/product`, data);
 
   return res.data.data;
 };
 
 const productService = {
   getAllProducts,
+  createProducts,
 };
 
 export default productService;

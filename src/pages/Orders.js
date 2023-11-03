@@ -22,6 +22,8 @@ const columns = [
   {
     title: "Amount",
     dataIndex: "amount",
+    sorter: (a, b) => a.amount.split(" ")[1] - b.amount.split(" ")[1],
+    sortDirections: ["descend", "ascend"],
   },
   {
     title: "Date",
@@ -65,9 +67,23 @@ const Orders = () => {
     ),
 
     product: item?.products?.map((i, index) => (
-      <p key={index} className="mb-1">
-        {index + 1}. {i.product.title} - {i.color} - {i.count} product(s)
-      </p>
+      <div className="order-product d-flex ic gap-3 py-2">
+        <span>{index + 1}.</span>
+        <div className="d-flex flex-column gap-1">
+          <p className="mb-1 text-start">
+            <strong>Product: </strong>
+            {i.product.title}
+          </p>
+          <p className="mb-1 text-start">
+            <strong>Color: </strong>
+            {i.color}
+          </p>
+          <p className="mb-1 text-start">
+            <strong>Count: </strong>
+            {i.count}
+          </p>
+        </div>
+      </div>
     )),
     amount: "$ " + item?.paymentIntent?.amount,
     date: moment(item?.createdAt).format("DD/MM/YYYY, h:mm:ss A"),

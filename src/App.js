@@ -22,6 +22,7 @@ import AddBrand from "./pages/AddBrand";
 import AddProduct from "./pages/AddProduct";
 import {ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "react-widgets/styles.css";
 
 function App() {
   return (
