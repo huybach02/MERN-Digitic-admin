@@ -19,6 +19,10 @@ const columns = [
     sortDirections: ["descend", "ascend"],
   },
   {
+    title: "SKU",
+    dataIndex: "sku",
+  },
+  {
     title: "Actions",
     dataIndex: "actions",
   },
@@ -34,6 +38,22 @@ const ColorList = () => {
   const data = colors?.map((item, index) => ({
     key: index + 1,
     name: item?.title?.charAt(0).toUpperCase() + item?.title?.slice(1),
+    sku: (
+      <div className="">
+        {item?.sku && (
+          <div
+            style={{
+              backgroundColor: item?.sku,
+              width: "100px",
+              height: "20px",
+              margin: "auto",
+            }}
+            className="border"
+          ></div>
+        )}
+        <span>{item?.sku}</span>
+      </div>
+    ),
     actions: (
       <>
         <Link to="/" className="fs-4 text-primary">

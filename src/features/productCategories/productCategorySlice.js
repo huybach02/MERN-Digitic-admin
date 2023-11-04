@@ -7,10 +7,11 @@ const initialState = {
   isLoading: false,
   isSuccess: false,
   msg: "",
+  created: false,
 };
 
 export const getAllProductCategories = createAsyncThunk(
-  "product/get-product-categories",
+  "category/get-product-categories",
   async (thunkAPI) => {
     try {
       return await productCategoryService.getAllProductCategories();
@@ -20,10 +21,25 @@ export const getAllProductCategories = createAsyncThunk(
   }
 );
 
+export const createCategory = createAsyncThunk(
+  "category/create-category",
+  async (data, thunkAPI) => {
+    try {
+      return await productCategoryService.createProductCategory(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const productCategoriesSlice = createSlice({
   name: "productCategories",
   initialState,
-  reducers: {},
+  reducers: {
+    resetCreatedCategory: (state) => {
+      state.created = false;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getAllProductCategories.pending, (state) => {
@@ -41,8 +57,27 @@ export const productCategoriesSlice = createSlice({
         state.isSuccess = false;
         state.productCategories = null;
         state.msg = action.payload;
+      })
+      .addCase(createCategory.pending, (state) => {
+        state.isLoading = true;
+        state.created = false;
+        state.isError = false;
+      })
+      .addCase(createCategory.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.created = true;
+      })
+      .addCase(createCategory.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = action.error && true;
+        state.isSuccess = false;
+        state.msg = null;
+        state.created = false;
       });
   },
 });
 
 export default productCategoriesSlice.reducer;
+export const {resetCreatedCategory} = productCategoriesSlice.actions;

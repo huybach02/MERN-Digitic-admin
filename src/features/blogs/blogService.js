@@ -1,14 +1,19 @@
-import axios from "axios";
-import {base_url} from "../../utils/base_url";
+import axiosConfig from "../../utils/axiosConfig";
 
 const getAllBlogs = async () => {
-  const res = await axios.get(`${base_url}/blog/`);
+  const res = await axiosConfig.get(`/blog/`);
 
+  return res.data.data;
+};
+
+const createBlog = async (data) => {
+  const res = await axiosConfig.post(`/blog`, data);
   return res.data.data;
 };
 
 const blogService = {
   getAllBlogs,
+  createBlog,
 };
 
 export default blogService;

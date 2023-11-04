@@ -3,7 +3,6 @@ import {Table} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 import {AiFillEdit, AiFillDelete} from "react-icons/ai";
-import {getAllBrands} from "../features/brands/brandSlice";
 import {getAllProductCategories} from "../features/productCategories/productCategorySlice";
 
 const columns = [

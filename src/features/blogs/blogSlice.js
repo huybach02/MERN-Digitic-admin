@@ -7,6 +7,7 @@ const initialState = {
   isLoading: false,
   isSuccess: false,
   msg: "",
+  created: false,
 };
 
 export const getAllBlogs = createAsyncThunk(
@@ -20,10 +21,25 @@ export const getAllBlogs = createAsyncThunk(
   }
 );
 
+export const createBlog = createAsyncThunk(
+  "blog/create-blog",
+  async (data, thunkAPI) => {
+    try {
+      return await blogService.createBlog(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const blogSlice = createSlice({
   name: "blogs",
   initialState,
-  reducers: {},
+  reducers: {
+    resetCreatedBlog: (state) => {
+      state.created = false;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getAllBlogs.pending, (state) => {
@@ -41,8 +57,27 @@ export const blogSlice = createSlice({
         state.isSuccess = false;
         state.blogs = null;
         state.msg = action.payload;
+      })
+      .addCase(createBlog.pending, (state) => {
+        state.isLoading = true;
+        state.created = false;
+        state.isError = false;
+      })
+      .addCase(createBlog.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.created = true;
+      })
+      .addCase(createBlog.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = action.error && true;
+        state.isSuccess = false;
+        state.msg = null;
+        state.created = false;
       });
   },
 });
 
 export default blogSlice.reducer;
+export const {resetCreatedBlog} = blogSlice.actions;

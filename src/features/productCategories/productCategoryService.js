@@ -1,14 +1,18 @@
-import axios from "axios";
-import {base_url} from "../../utils/base_url";
+import axiosConfig from "../../utils/axiosConfig";
 
 const getAllProductCategories = async () => {
-  const res = await axios.get(`${base_url}/category/`);
+  const res = await axiosConfig.get(`/category`);
+  return res.data.data;
+};
 
+const createProductCategory = async (data) => {
+  const res = await axiosConfig.post(`/category`, data);
   return res.data.data;
 };
 
 const productCategoryService = {
   getAllProductCategories,
+  createProductCategory,
 };
 
 export default productCategoryService;

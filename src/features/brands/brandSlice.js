@@ -7,6 +7,7 @@ const initialState = {
   isLoading: false,
   isSuccess: false,
   msg: "",
+  created: false,
 };
 
 export const getAllBrands = createAsyncThunk(
@@ -20,10 +21,25 @@ export const getAllBrands = createAsyncThunk(
   }
 );
 
+export const createBrand = createAsyncThunk(
+  "brand/create-brand",
+  async (data, thunkAPI) => {
+    try {
+      return await brandService.createBrand(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const brandSlice = createSlice({
   name: "brands",
   initialState,
-  reducers: {},
+  reducers: {
+    resetCreatedBrand: (state) => {
+      state.created = false;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getAllBrands.pending, (state) => {
@@ -41,8 +57,27 @@ export const brandSlice = createSlice({
         state.isSuccess = false;
         state.brands = null;
         state.msg = action.payload;
+      })
+      .addCase(createBrand.pending, (state) => {
+        state.isLoading = true;
+        state.created = false;
+        state.isError = false;
+      })
+      .addCase(createBrand.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.created = true;
+      })
+      .addCase(createBrand.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = action.error && true;
+        state.isSuccess = false;
+        state.msg = null;
+        state.created = false;
       });
   },
 });
 
 export default brandSlice.reducer;
+export const {resetCreatedBrand} = brandSlice.actions;

@@ -121,11 +121,21 @@ tbody .ant-table-cell{
 }
 .preview-images{
   width: 250px;
-  height: 180px;
+  height: 200px;
   object-fit: cover;
 }
 .preview-images button{
   top: 4px;
   right: 4px;
   background-color: white;
+}
+.ant-select-selector{
+  padding: 15px 0 !important;
+}
+.ant-select-selector span{
+  color: var(--color-212529) !important;
+  font-size: 16px;
+}
+.ant-select-selection-overflow{
+  padding: 0 10px;
 }

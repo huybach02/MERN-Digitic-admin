@@ -7,6 +7,7 @@ const initialState = {
   isLoading: false,
   isSuccess: false,
   msg: "",
+  created: false,
 };
 
 export const getAllBlogCategories = createAsyncThunk(
@@ -20,10 +21,25 @@ export const getAllBlogCategories = createAsyncThunk(
   }
 );
 
+export const createBlogCategory = createAsyncThunk(
+  "blog/create-blog-category",
+  async (data, thunkAPI) => {
+    try {
+      return await blogCategoryService.createBlogCategory(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const blogCategorySlice = createSlice({
   name: "blogCategories",
   initialState,
-  reducers: {},
+  reducers: {
+    resetCreatedBlogCategory: (state) => {
+      state.created = false;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getAllBlogCategories.pending, (state) => {
@@ -41,8 +57,27 @@ export const blogCategorySlice = createSlice({
         state.isSuccess = false;
         state.blogCategories = null;
         state.msg = action.payload;
+      })
+      .addCase(createBlogCategory.pending, (state) => {
+        state.isLoading = true;
+        state.created = false;
+        state.isError = false;
+      })
+      .addCase(createBlogCategory.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.created = true;
+      })
+      .addCase(createBlogCategory.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = action.error && true;
+        state.isSuccess = false;
+        state.msg = null;
+        state.created = false;
       });
   },
 });
 
 export default blogCategorySlice.reducer;
+export const {resetCreatedBlogCategory} = blogCategorySlice.actions;

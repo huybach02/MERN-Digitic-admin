@@ -8,29 +8,51 @@ import {useDispatch, useSelector} from "react-redux";
 import {getAllBrands} from "../features/brands/brandSlice";
 import {getAllProductCategories} from "../features/productCategories/productCategorySlice";
 import {getAllColors} from "../features/colors/colorSlice";
-import Multiselect from "react-widgets/Multiselect";
+import {Select} from "antd";
 import Dropzone from "react-dropzone";
 import {deleteImage, uploadImage} from "../features/upload/uploadSlice";
-import {createProduct} from "../features/products/productSlice";
+import {
+  createProduct,
+  resetCreatedProduct,
+} from "../features/products/productSlice";
+import {toast} from "react-toastify";
+
+const tagList = [
+  {
+    label: "Feature",
+    value: "feature",
+  },
+  {
+    label: "Popular",
+    value: "popular",
+  },
+  {
+    label: "Special",
+    value: "special",
+  },
+];
 
 const AddProduct = () => {
   const dispatch = useDispatch();
 
   const [desc, setDesc] = useState();
   const [colorSelected, setColorSelected] = useState([]);
+  const [tagSelected, setTagSelected] = useState([]);
   const [imageList, setImageList] = useState([]);
-  console.log("imageList: ", imageList);
 
   const {brands} = useSelector((state) => state.brands);
   const {productCategories} = useSelector((state) => state.productCategories);
   const {colors} = useSelector((state) => state.colors);
-  const {images} = useSelector((state) => state.upload);
+  const {images, isLoading: isLoadingImage} = useSelector(
+    (state) => state.upload
+  );
+  const {created, isError, isLoading} = useSelector((state) => state.products);
 
   const colorList = [];
   colors.forEach((item) => {
     colorList.push({
-      _id: item._id,
-      color: item.title,
+      label: item.title,
+      value: item._id,
     });
   });
 
@@ -43,6 +65,7 @@ const AddProduct = () => {
       brand: "",
       category: "",
       color: [],
+      tags: [],
     },
     validationSchema: Yup.object({
       title: Yup.string().required("This field cannot be empty"),
@@ -55,9 +78,15 @@ const AddProduct = () => {
         .min(0, "Number cannot be less than 0"),
       brand: Yup.string().required("This field cannot be empty"),
       category: Yup.string().required("This field cannot be empty"),
-      color: Yup.array().required("This field cannot be empty"),
+      color: Yup.array()
+        .min(1, "Pick at least one color")
+        .required("This field cannot be empty"),
+      tags: Yup.array()
+        .min(1, "Pick at least one tag")
+        .required("This field cannot be empty"),
     }),
     onSubmit: (values) => {
+      console.log(values);
       dispatch(createProduct(values));
     },
   });
@@ -73,8 +102,9 @@ const AddProduct = () => {
   }, []);
 
   useEffect(() => {
-    formik.values.color = colorSelected.map((item) => item._id);
-  }, [colorSelected]);
+    formik.values.color = colorSelected;
+    formik.values.tags = tagSelected;
+  }, [colorSelected, tagSelected]);
 
   useEffect(() => {
     setImageList(images?.data);
@@ -83,6 +113,27 @@ const AddProduct = () => {
     public_id: item.public_id,
     url: item.url,
   }));
+
+  useEffect(() => {
+    if (created) {
+      toast.success("Create product successfully!");
+      formik.resetForm();
+      setColorSelected([]);
+      setTagSelected([]);
+      setImageList([]);
+      dispatch(resetCreatedProduct());
+    }
+    if (isError) {
+      toast.error("Something went wrong!");
+    }
+  }, [created, isError]);
+
+  const handleColor = (item) => {
+    setColorSelected(item);
+  };
+  const handleTag = (item) => {
+    setTagSelected(item);
+  };
 
   return (
     <div>
@@ -149,8 +200,11 @@ const AddProduct = () => {
               aria-label="Floating label select example"
               value={formik.values.brand}
               onChange={formik.handleChange("brand")}
+              onBlur={formik.handleBlur}
             >
-              <option value="">Select brand</option>
+              <option value="" disabled>
+                Select brand
+              </option>
               {brands?.map((item, index) => (
                 <option key={index} value={item.title}>
                   {item.title}
@@ -172,8 +226,11 @@ const AddProduct = () => {
               aria-label="Floating label select example"
               value={formik.values.category}
               onChange={formik.handleChange("category")}
+              onBlur={formik.handleBlur}
             >
-              <option value="">Select category</option>
+              <option value="" disabled>
+                Select category
+              </option>
               {productCategories?.map((item, index) => (
                 <option key={index} value={item.title}>
                   {item.title}
@@ -187,17 +244,59 @@ const AddProduct = () => {
                 : null}
             </p>
           </div>
+          {/* <div className="form-floating mb-3">
+            <select
+              name="tags"
+              className="form-control form-select "
+              id="floatingSelect"
+              aria-label="Floating label select example"
+              value={formik.values.tags}
+              onChange={formik.handleChange("tags")}
+              onBlur={formik.handleBlur}
+            >
+              <option value="">Select tags</option>
+              {productCategories?.map((item, index) => (
+                <option key={index} value={item.title}>
+                  {item.title}
+                </option>
+              ))}
+            </select>
+            <label htmlFor="floatingSelect">Tags</label>
+            <p className="error">
+              {formik.touched.tags && formik.errors.tags
+                ? formik.errors.tags
+                : null}
+            </p>
+          </div> */}
           <div>
-            <Multiselect
-              dataKey="id"
-              textField="color"
-              data={colorList}
+            <Select
+              mode="multiple"
+              allowClear
+              style={{width: "100%"}}
               placeholder="Select Color"
-              onChange={(e) => setColorSelected(e)}
+              options={colorList}
+              onChange={(i) => handleColor(i)}
+              value={colorSelected}
             />
             <p className="error">
               {formik.touched.color && formik.errors.color
                 ? formik.errors.color
+                : null}
+            </p>
+          </div>
+          <div>
+            <Select
+              mode="multiple"
+              allowClear
+              style={{width: "100%"}}
+              placeholder="Select Tags"
+              options={tagList}
+              onChange={(i) => handleTag(i)}
+              value={tagSelected}
+            />
+            <p className="error">
+              {formik.touched.tags && formik.errors.tags
+                ? formik.errors.tags
                 : null}
             </p>
           </div>
@@ -220,7 +319,7 @@ const AddProduct = () => {
             </Dropzone>
           </div>
           <div className="mt-4">
-            <h6>Preview:</h6>
+            <h6 className="pb-2">Preview:</h6>
             <div className="d-flex ic flex-wrap gap-2">
               {imageList?.map((item, index) => (
                 <div key={index} className="preview-images position-relative">

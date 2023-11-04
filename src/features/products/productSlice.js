@@ -7,6 +7,7 @@ const initialState = {
   isLoading: false,
   isSuccess: false,
   msg: "",
+  created: false,
 };
 
 export const getAllProducts = createAsyncThunk(
@@ -34,7 +35,11 @@ export const createProduct = createAsyncThunk(
 export const productSlice = createSlice({
   name: "products",
   initialState,
-  reducers: {},
+  reducers: {
+    resetCreatedProduct: (state) => {
+      state.created = false;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getAllProducts.pending, (state) => {
@@ -55,19 +60,24 @@ export const productSlice = createSlice({
       })
       .addCase(createProduct.pending, (state) => {
         state.isLoading = true;
+        state.created = false;
+        state.isError = false;
       })
       .addCase(createProduct.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isError = false;
         state.isSuccess = true;
+        state.created = true;
       })
       .addCase(createProduct.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = action.error && true;
         state.isSuccess = false;
         state.msg = null;
+        state.created = false;
       });
   },
 });
 
 export default productSlice.reducer;
+export const {resetCreatedProduct} = productSlice.actions;
