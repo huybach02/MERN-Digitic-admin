@@ -6,7 +6,11 @@ import "react-quill/dist/quill.snow.css";
 import Dropzone from "react-dropzone";
 import {useDispatch, useSelector} from "react-redux";
 import {getAllBlogCategories} from "../features/blogCategories/blogCategorySlice";
-import {deleteImage, uploadImage} from "../features/upload/uploadSlice";
+import {
+  deleteImage,
+  resetImages,
+  uploadImage,
+} from "../features/upload/uploadSlice";
 import {toast} from "react-toastify";
 import {useFormik} from "formik";
 import * as Yup from "yup";
@@ -17,12 +21,14 @@ const AddBlog = () => {
 
   const [desc, setDesc] = useState("");
   const [imageList, setImageList] = useState([]);
+  console.log("imageList: ", imageList);
 
   const {blogCategories} = useSelector((state) => state.blogCategories);
   const {images, isLoading: isLoadingImage} = useSelector(
     (state) => state.upload
   );
   const {created, isError, isLoading} = useSelector((state) => state.blogs);
+  const {user} = useSelector((state) => state.auth);
 
   const formik = useFormik({
     initialValues: {
@@ -36,7 +42,6 @@ const AddBlog = () => {
       category: Yup.string().required("This field cannot be empty"),
     }),
     onSubmit: (values) => {
-      console.log(values);
       dispatch(createBlog(values));
     },
   });
@@ -53,6 +58,7 @@ const AddBlog = () => {
     public_id: item.public_id,
     url: item.url,
   }));
+  formik.values.author = `${user?.data?.firstname} ${user?.data?.lastname}`;
 
   useEffect(() => {
     if (created) {
@@ -60,6 +66,7 @@ const AddBlog = () => {
       formik.resetForm();
       setImageList([]);
       dispatch(resetCreatedBlog());
+      dispatch(resetImages());
     }
     if (isError) {
       toast.error("Something went wrong!");

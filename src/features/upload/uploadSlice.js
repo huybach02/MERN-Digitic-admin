@@ -38,7 +38,11 @@ export const deleteImage = createAsyncThunk(
 export const uploadSlice = createSlice({
   name: "upload",
   initialState,
-  reducers: {},
+  reducers: {
+    resetImages: (state) => {
+      state.images = {};
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(uploadImage.pending, (state) => {
@@ -80,3 +84,4 @@ export const uploadSlice = createSlice({
 });
 
 export default uploadSlice.reducer;
+export const {resetImages} = uploadSlice.actions;

@@ -63,7 +63,7 @@ const BlogList = () => {
       <>
         <img
           style={{maxWidth: "80px", maxHeight: "80px"}}
-          src={item?.image}
+          src={item?.images[0]?.url}
           alt=""
         />
       </>

@@ -38,6 +38,7 @@ export const blogSlice = createSlice({
   reducers: {
     resetCreatedBlog: (state) => {
       state.created = false;
+      state.isError = false;
     },
   },
   extraReducers: (builder) => {

@@ -10,7 +10,11 @@ import {getAllProductCategories} from "../features/productCategories/productCate
 import {getAllColors} from "../features/colors/colorSlice";
 import {Select} from "antd";
 import Dropzone from "react-dropzone";
-import {deleteImage, uploadImage} from "../features/upload/uploadSlice";
+import {
+  deleteImage,
+  resetImages,
+  uploadImage,
+} from "../features/upload/uploadSlice";
 import {
   createProduct,
   resetCreatedProduct,
@@ -122,6 +126,7 @@ const AddProduct = () => {
       setTagSelected([]);
       setImageList([]);
       dispatch(resetCreatedProduct());
+      dispatch(resetImages());
     }
     if (isError) {
       toast.error("Something went wrong!");
