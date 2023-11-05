@@ -13,7 +13,7 @@ import {ImBlog} from "react-icons/im";
 import {IoIosNotifications} from "react-icons/io";
 import {FaClipboardList, FaBloggerB} from "react-icons/fa";
 import {SiBrandfolder} from "react-icons/si";
-import {BiCategoryAlt} from "react-icons/bi";
+import {BiCategoryAlt, BiSolidCoupon} from "react-icons/bi";
 import {useDispatch, useSelector} from "react-redux";
 import {logout} from "../features/auth/authSlice";
 import {toast} from "react-toastify";
@@ -120,6 +120,23 @@ const MainLayout = () => {
                   key: "color-list",
                   icon: <AiOutlineBgColors className="fs-4" />,
                   label: "Color List",
+                },
+              ],
+            },
+            {
+              key: "coupon",
+              icon: <BiSolidCoupon className="fs-4" />,
+              label: "Coupons",
+              children: [
+                {
+                  key: "add-coupon",
+                  icon: <ImBlog className="fs-4" />,
+                  label: "Add Coupon",
+                },
+                {
+                  key: "coupon-list",
+                  icon: <BiSolidCoupon className="fs-4" />,
+                  label: "Coupon List",
                 },
               ],
             },

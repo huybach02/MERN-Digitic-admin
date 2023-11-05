@@ -22,6 +22,8 @@ import AddBrand from "./pages/AddBrand";
 import AddProduct from "./pages/AddProduct";
 import {ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CouponList from "./pages/CouponList";
+import AddCoupon from "./pages/AddCoupon";
 
 function App() {
   return (
@@ -45,6 +47,7 @@ function App() {
             <Route path="category-list" element={<CategoryList />}></Route>
             <Route path="product-list" element={<ProductList />}></Route>
             <Route path="brand-list" element={<BrandList />}></Route>
+            <Route path="coupon-list" element={<CouponList />}></Route>
             <Route path="add-blog" element={<AddBlog />}></Route>
             <Route
               path="add-blog-category"
@@ -53,7 +56,9 @@ function App() {
             <Route path="add-color" element={<AddColor />}></Route>
             <Route path="add-category" element={<AddCategory />}></Route>
             <Route path="add-brand" element={<AddBrand />}></Route>
+            <Route path="update-brand/:id" element={<AddBrand />}></Route>
             <Route path="add-product" element={<AddProduct />}></Route>
+            <Route path="add-coupon" element={<AddCoupon />}></Route>
           </Route>
         </Routes>
       </BrowserRouter>

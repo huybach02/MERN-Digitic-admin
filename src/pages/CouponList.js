@@ -4,6 +4,8 @@ import {useDispatch, useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 import {AiFillEdit, AiFillDelete} from "react-icons/ai";
 import {getAllBrands} from "../features/brands/brandSlice";
+import moment from "moment";
+import {getAllCoupons} from "../features/coupons/couponSlice";
 
 const columns = [
   {
@@ -19,27 +21,42 @@ const columns = [
     sortDirections: ["descend", "ascend"],
   },
   {
+    title: "Expire",
+    dataIndex: "expire",
+  },
+  {
+    title: "% Discount",
+    dataIndex: "discount",
+    sorter: (a, b) => a.discount - b.discount,
+    sortDirections: ["descend", "ascend"],
+  },
+  {
+    title: "Status",
+    dataIndex: "status",
+  },
+  {
     title: "Actions",
     dataIndex: "actions",
   },
 ];
 
-const BrandList = () => {
+const CouponList = () => {
   const dispatch = useDispatch();
 
-  const {brands, isLoading, isError, isSuccess, msg} = useSelector(
-    (state) => state.brands
+  const {coupons, isLoading, isError, isSuccess, msg} = useSelector(
+    (state) => state.coupons
   );
 
-  const data = brands?.map((item, index) => ({
+  const data = coupons?.map((item, index) => ({
     key: index + 1,
-    name: item?.title?.charAt(0).toUpperCase() + item?.title?.slice(1),
+    name: item?.name,
+    expire: moment(item?.expire).format("DD/MM/YYYY, h:mm:ss A"),
+    discount: item?.discount,
+    status:
+      Date.now() < new Date(item?.expire).getTime() ? "Active" : "Expired",
     actions: (
       <>
-        <Link
-          to={`/admin/update-brand/${item?._id}`}
-          className="fs-4 text-primary"
-        >
+        <Link to="/" className="fs-4 text-primary">
           <AiFillEdit />
         </Link>
         <Link className="ms-4 fs-4 text-danger" to="/">
@@ -50,12 +67,12 @@ const BrandList = () => {
   }));
 
   useEffect(() => {
-    dispatch(getAllBrands());
+    dispatch(getAllCoupons());
   }, []);
 
   return (
     <div>
-      <h3 className="mb-4 title">Brands List</h3>
+      <h3 className="mb-4 title">Coupon List</h3>
       <div>
         <Table columns={columns} dataSource={data} />
       </div>
@@ -63,4 +80,4 @@ const BrandList = () => {
   );
 };
 
-export default BrandList;
+export default CouponList;

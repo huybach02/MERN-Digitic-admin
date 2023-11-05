@@ -10,9 +10,21 @@ const createBrand = async (data) => {
   return res.data.data;
 };
 
+const getOneBrand = async (id) => {
+  const res = await axiosConfig.get(`/brand/${id}`);
+  return res.data.data;
+};
+
+const updateBrand = async ({id, data}) => {
+  const res = await axiosConfig.put(`/brand/${id}`, data);
+  return res.data.data;
+};
+
 const brandService = {
   getAllBrands,
   createBrand,
+  getOneBrand,
+  updateBrand,
 };
 
 export default brandService;
