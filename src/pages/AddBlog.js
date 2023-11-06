@@ -5,30 +5,59 @@ import {toolbar} from "../utils/const";
 import "react-quill/dist/quill.snow.css";
 import Dropzone from "react-dropzone";
 import {useDispatch, useSelector} from "react-redux";
-import {getAllBlogCategories} from "../features/blogCategories/blogCategorySlice";
+import {
+  getAllBlogCategories,
+  resetBlogCategoryInfo,
+} from "../features/blogCategories/blogCategorySlice";
 import {
   deleteImage,
+  resetDeletedImageId,
   resetImages,
   uploadImage,
 } from "../features/upload/uploadSlice";
 import {toast} from "react-toastify";
 import {useFormik} from "formik";
 import * as Yup from "yup";
-import {createBlog, resetCreatedBlog} from "../features/blogs/blogSlice";
+import {
+  createBlog,
+  getOneBlog,
+  resetCreatedBlog,
+  resetUpdatedBlog,
+  updateBlog,
+} from "../features/blogs/blogSlice";
+import {useParams, useNavigate} from "react-router-dom";
 
 const AddBlog = () => {
   const dispatch = useDispatch();
+  const param = useParams();
+  const navigate = useNavigate();
 
-  const [desc, setDesc] = useState("");
   const [imageList, setImageList] = useState([]);
   console.log("imageList: ", imageList);
 
   const {blogCategories} = useSelector((state) => state.blogCategories);
-  const {images, isLoading: isLoadingImage} = useSelector(
-    (state) => state.upload
+  const {
+    images,
+    isLoading: isLoadingImage,
+    deletedImageId,
+  } = useSelector((state) => state.upload);
+  console.log("deletedImageId: ", deletedImageId);
+  const {created, isError, isLoading, blogInfo, updated} = useSelector(
+    (state) => state.blogs
   );
-  const {created, isError, isLoading} = useSelector((state) => state.blogs);
   const {user} = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (blogInfo && param?.id) {
+      formik.setValues({
+        title: blogInfo?.title,
+        description: blogInfo?.description,
+        category: blogInfo?.category,
+      });
+    } else {
+      setImageList([]);
+    }
+  }, [blogInfo, param?.id]);
 
   const formik = useFormik({
     initialValues: {
@@ -42,36 +71,92 @@ const AddBlog = () => {
       category: Yup.string().required("This field cannot be empty"),
     }),
     onSubmit: (values) => {
-      dispatch(createBlog(values));
+      console.log("values: ", values);
+      if (param?.id) {
+        dispatch(updateBlog({id: param?.id, data: values}));
+      } else {
+        dispatch(createBlog(values));
+      }
     },
   });
+
+  useEffect(() => {
+    if (param?.id) {
+      dispatch(getOneBlog(param?.id));
+    } else {
+      dispatch(resetBlogCategoryInfo());
+      setImageList([]);
+    }
+  }, [param?.id]);
 
   useEffect(() => {
     dispatch(getAllBlogCategories());
   }, []);
 
   useEffect(() => {
-    setImageList(images?.data);
-  }, [images?.data]);
+    setImageList(blogInfo?.images || images?.data);
+  }, [images?.data, blogInfo?.images]);
 
-  formik.values.images = imageList?.map((item) => ({
-    public_id: item.public_id,
-    url: item.url,
-  }));
+  useEffect(() => {
+    if (param?.id) {
+      if (images?.data) {
+        let img = imageList?.map((item) => ({
+          public_id: item.public_id,
+          url: item.url,
+        }));
+        img = [
+          ...img,
+          ...images?.data?.map((i) => ({
+            public_id: i.public_id,
+            url: i.url,
+          })),
+        ];
+        formik.values.images = img;
+        setImageList((prev) => [...prev, ...images?.data]);
+      }
+    } else {
+      formik.values.images = images?.data?.map((item) => ({
+        public_id: item.public_id,
+        url: item.url,
+      }));
+    }
+  }, [param?.id, images?.data]);
+
+  useEffect(() => {
+    if (deletedImageId) {
+      const newImgList = imageList.filter(
+        (item) => item.public_id !== deletedImageId
+      );
+      console.log("newImgList: ", newImgList);
+      setImageList(newImgList);
+      dispatch(resetDeletedImageId());
+      formik.values.images = newImgList?.map((item) => ({
+        public_id: item.public_id,
+        url: item.url,
+      }));
+    }
+  }, [deletedImageId]);
+
   formik.values.author = `${user?.data?.firstname} ${user?.data?.lastname}`;
 
   useEffect(() => {
     if (created) {
-      toast.success("Create product successfully!");
+      toast.success("Create blog successfully!");
       formik.resetForm();
       setImageList([]);
       dispatch(resetCreatedBlog());
       dispatch(resetImages());
     }
+    if (updated) {
+      toast.success("Update blog successfully!");
+      formik.resetForm();
+      dispatch(resetUpdatedBlog());
+      navigate("/admin/blog-list");
+    }
     if (isError) {
       toast.error("Something went wrong!");
     }
-  }, [created, isError]);
+  }, [created, isError, updated]);
 
   return (
     <div>
@@ -132,16 +217,16 @@ const AddBlog = () => {
           </div>
           <div className="bg-white border rounded-3 shadow-sm text-center">
             <Dropzone
+              multiple={false}
               onDrop={(acceptedFiles) => dispatch(uploadImage(acceptedFiles))}
             >
               {({getRootProps, getInputProps}) => (
                 <section className="w-100 p-5 pointer">
                   <div {...getRootProps()}>
                     <input {...getInputProps()} />
-                    <h5>Upload images</h5>
+                    <h5>Upload thumb</h5>
                     <p>
-                      Drag 'n' drop some files here, or click here to select
-                      files
+                      Drag 'n' drop one file here, or click here to select file
                     </p>
                   </div>
                 </section>
@@ -154,10 +239,10 @@ const AddBlog = () => {
               {imageList?.map((item, index) => (
                 <div key={index} className="preview-images position-relative">
                   <img className="w-100 h-100" src={item?.url} alt="" />
-                  <button
+                  <span
                     className="btn btn-close position-absolute"
                     onClick={() => dispatch(deleteImage(item?.public_id))}
-                  ></button>
+                  ></span>
                 </div>
               ))}
             </div>

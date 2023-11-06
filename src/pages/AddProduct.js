@@ -329,10 +329,10 @@ const AddProduct = () => {
               {imageList?.map((item, index) => (
                 <div key={index} className="preview-images position-relative">
                   <img className="w-100 h-100" src={item?.url} alt="" />
-                  <button
+                  <span
                     className="btn btn-close position-absolute"
                     onClick={() => dispatch(deleteImage(item?.public_id))}
-                  ></button>
+                  ></span>
                 </div>
               ))}
             </div>

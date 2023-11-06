@@ -1,9 +1,15 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Table} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 import {AiFillEdit, AiFillDelete} from "react-icons/ai";
-import {getAllBlogs} from "../features/blogs/blogSlice";
+import {
+  deleteBlog,
+  getAllBlogs,
+  resetDeletedBlog,
+} from "../features/blogs/blogSlice";
+import CustomModal from "../components/CustomModal";
+import {toast} from "react-toastify";
 
 const columns = [
   {
@@ -53,9 +59,20 @@ const columns = [
 const BlogList = () => {
   const dispatch = useDispatch();
 
-  const {blogs, isLoading, isError, isSuccess, msg} = useSelector(
+  const {blogs, isLoading, isError, isSuccess, msg, deleted} = useSelector(
     (state) => state.blogs
   );
+
+  const [open, setOpen] = useState(false);
+  const [brandId, setBrandId] = useState("");
+
+  const showModal = (id) => {
+    setOpen(true);
+    setBrandId(id);
+  };
+  const hideModal = () => {
+    setOpen(false);
+  };
 
   const data = blogs?.map((item, index) => ({
     key: index + 1,
@@ -76,25 +93,54 @@ const BlogList = () => {
     dislikes: item?.dislikes?.length,
     actions: (
       <>
-        <Link to="/" className="fs-4 text-primary">
+        <Link
+          to={`/admin/update-blog/${item?._id}`}
+          className="fs-4 text-primary"
+        >
           <AiFillEdit />
         </Link>
-        <Link className="ms-4 fs-4 text-danger" to="/">
+        <button
+          className="ms-4 fs-4 text-danger bg-transparent border-0"
+          onClick={() => showModal(item?._id)}
+        >
           <AiFillDelete />
-        </Link>
+        </button>
       </>
     ),
   }));
 
+  const handleDelete = (id) => {
+    dispatch(deleteBlog(id));
+    setOpen(false);
+  };
+
   useEffect(() => {
     dispatch(getAllBlogs());
   }, []);
+
+  useEffect(() => {
+    if (deleted) {
+      toast.success("Delete blog successfully!");
+      dispatch(resetDeletedBlog());
+      dispatch(getAllBlogs());
+    }
+    if (isError) {
+      toast.error("Something went wrong!");
+    }
+  }, [deleted, isError]);
 
   return (
     <div>
       <h3 className="mb-4 title">Blogs List</h3>
       <div>
         <Table columns={columns} dataSource={data} />
+        <CustomModal
+          title={"Confirm Delete?"}
+          desc={"Are you sure want to delete this blog?"}
+          hideModal={hideModal}
+          open={open}
+          performAction={() => handleDelete(brandId)}
+        />
       </div>
     </div>
   );

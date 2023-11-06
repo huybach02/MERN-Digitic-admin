@@ -124,7 +124,7 @@ tbody .ant-table-cell{
   height: 200px;
   object-fit: cover;
 }
-.preview-images button{
+.preview-images span{
   top: 4px;
   right: 4px;
   background-color: white;

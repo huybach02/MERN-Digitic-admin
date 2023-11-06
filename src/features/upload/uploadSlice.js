@@ -7,6 +7,7 @@ const initialState = {
   isLoading: false,
   isSuccess: false,
   msg: "",
+  deletedImageId: "",
 };
 
 export const uploadImage = createAsyncThunk(
@@ -42,6 +43,9 @@ export const uploadSlice = createSlice({
     resetImages: (state) => {
       state.images = {};
     },
+    resetDeletedImageId: (state) => {
+      state.deletedImageId = "";
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -63,16 +67,20 @@ export const uploadSlice = createSlice({
       })
       .addCase(deleteImage.pending, (state) => {
         state.isLoading = true;
+        state.deletedImageId = "";
       })
       .addCase(deleteImage.fulfilled, (state, action) => {
         console.log("action: ", action);
         state.isLoading = false;
         state.isError = false;
         state.isSuccess = true;
-        let newImages = state?.images?.data?.filter(
-          (item) => item.public_id !== action.meta.arg
-        );
+        let newImages = state?.images?.data
+          ? state?.images?.data?.filter(
+              (item) => item.public_id !== action.meta.arg
+            )
+          : [];
         state.images.data = [...newImages];
+        state.deletedImageId = action.meta.arg;
       })
       .addCase(deleteImage.rejected, (state, action) => {
         state.isLoading = false;
@@ -84,4 +92,4 @@ export const uploadSlice = createSlice({
 });
 
 export default uploadSlice.reducer;
-export const {resetImages} = uploadSlice.actions;
+export const {resetImages, resetDeletedImageId} = uploadSlice.actions;

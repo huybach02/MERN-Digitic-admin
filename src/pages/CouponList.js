@@ -1,11 +1,16 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Table} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 import {AiFillEdit, AiFillDelete} from "react-icons/ai";
-import {getAllBrands} from "../features/brands/brandSlice";
 import moment from "moment";
-import {getAllCoupons} from "../features/coupons/couponSlice";
+import {
+  deleteCoupon,
+  getAllCoupons,
+  resetDeletedCoupon,
+} from "../features/coupons/couponSlice";
+import CustomModal from "../components/CustomModal";
+import {toast} from "react-toastify";
 
 const columns = [
   {
@@ -43,9 +48,20 @@ const columns = [
 const CouponList = () => {
   const dispatch = useDispatch();
 
-  const {coupons, isLoading, isError, isSuccess, msg} = useSelector(
+  const {coupons, isLoading, isError, isSuccess, msg, deleted} = useSelector(
     (state) => state.coupons
   );
+
+  const [open, setOpen] = useState(false);
+  const [brandId, setBrandId] = useState("");
+
+  const showModal = (id) => {
+    setOpen(true);
+    setBrandId(id);
+  };
+  const hideModal = () => {
+    setOpen(false);
+  };
 
   const data = coupons?.map((item, index) => ({
     key: index + 1,
@@ -62,22 +78,48 @@ const CouponList = () => {
         >
           <AiFillEdit />
         </Link>
-        <Link className="ms-4 fs-4 text-danger" to="/">
+        <button
+          className="ms-4 fs-4 text-danger bg-transparent border-0"
+          onClick={() => showModal(item?._id)}
+        >
           <AiFillDelete />
-        </Link>
+        </button>
       </>
     ),
   }));
 
+  const handleDelete = (id) => {
+    dispatch(deleteCoupon(id));
+    setOpen(false);
+  };
+
   useEffect(() => {
     dispatch(getAllCoupons());
   }, []);
+
+  useEffect(() => {
+    if (deleted) {
+      toast.success("Delete coupon successfully!");
+      dispatch(resetDeletedCoupon());
+      dispatch(getAllCoupons());
+    }
+    if (isError) {
+      toast.error("Something went wrong!");
+    }
+  }, [deleted, isError]);
 
   return (
     <div>
       <h3 className="mb-4 title">Coupon List</h3>
       <div>
         <Table columns={columns} dataSource={data} />
+        <CustomModal
+          title={"Confirm Delete?"}
+          desc={"Are you sure want to delete this coupon?"}
+          hideModal={hideModal}
+          open={open}
+          performAction={() => handleDelete(brandId)}
+        />
       </div>
     </div>
   );
