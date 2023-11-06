@@ -4,26 +4,51 @@ import {useFormik} from "formik";
 import * as Yup from "yup";
 import {useDispatch, useSelector} from "react-redux";
 import {toast} from "react-toastify";
-import {createColor, resetCreatedColor} from "../features/colors/colorSlice";
+import {
+  createColor,
+  getOneColor,
+  resetColorInfo,
+  resetCreatedColor,
+  resetUpdatedColor,
+  updateColor,
+} from "../features/colors/colorSlice";
+import {useParams, useNavigate} from "react-router-dom";
 
 const AddColor = () => {
   const dispatch = useDispatch();
+  const param = useParams();
+  const navigate = useNavigate();
 
-  const {created, isError, isLoading} = useSelector((state) => state.colors);
+  const {created, isError, isLoading, colorInfo, updated} = useSelector(
+    (state) => state.colors
+  );
 
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      title: "",
-      sku: "",
+      title: colorInfo?.title || "",
+      sku: colorInfo?.sku || "",
     },
     validationSchema: Yup.object({
       title: Yup.string().required("This field cannot be empty"),
       sku: Yup.string().required("Please choose one color"),
     }),
     onSubmit: (values) => {
-      dispatch(createColor(values));
+      if (param?.id) {
+        dispatch(updateColor({id: param?.id, data: values}));
+      } else {
+        dispatch(createColor(values));
+      }
     },
   });
+
+  useEffect(() => {
+    if (param?.id) {
+      dispatch(getOneColor(param?.id));
+    } else {
+      dispatch(resetColorInfo());
+    }
+  }, [param?.id]);
 
   useEffect(() => {
     if (created) {
@@ -31,14 +56,20 @@ const AddColor = () => {
       formik.resetForm();
       dispatch(resetCreatedColor());
     }
+    if (updated) {
+      toast.success("Update color successfully!");
+      formik.resetForm();
+      dispatch(resetUpdatedColor());
+      navigate("/admin/color-list");
+    }
     if (isError) {
       toast.error("Something went wrong!");
     }
-  }, [created, isError]);
+  }, [created, isError, updated]);
 
   return (
     <div>
-      <h3 className="mb-4 title">Add Color</h3>
+      <h3 className="mb-4 title">{param?.id ? "Edit" : "Add"} Color</h3>
       <div>
         <form action="" onSubmit={formik.handleSubmit}>
           <CustomInput
@@ -66,7 +97,7 @@ const AddColor = () => {
             }
           />
           <button type="submit" className="w-100 btn btn-success my-3">
-            Add
+            {param?.id ? "Save" : "Add"}
           </button>
         </form>
       </div>

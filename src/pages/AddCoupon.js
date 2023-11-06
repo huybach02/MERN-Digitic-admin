@@ -7,19 +7,30 @@ import {createBrand, resetCreatedBrand} from "../features/brands/brandSlice";
 import {toast} from "react-toastify";
 import {
   createCoupon,
+  getOneCoupon,
+  resetCouponInfo,
   resetCreatedCoupon,
+  resetUpdatedCoupon,
+  updateCoupon,
 } from "../features/coupons/couponSlice";
+import {useParams, useNavigate} from "react-router-dom";
+import {changeDateFormat} from "../utils/const";
 
 const AddCoupon = () => {
   const dispatch = useDispatch();
+  const param = useParams();
+  const navigate = useNavigate();
 
-  const {created, isError, isLoading} = useSelector((state) => state.coupons);
+  const {created, isError, isLoading, couponInfo, updated} = useSelector(
+    (state) => state.coupons
+  );
 
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      name: "",
-      expire: "",
-      discount: 0,
+      name: couponInfo?.name || "",
+      expire: changeDateFormat(couponInfo?.expire) || "",
+      discount: couponInfo?.discount || 0,
     },
     validationSchema: Yup.object({
       name: Yup.string().required("This field cannot be empty"),
@@ -30,9 +41,21 @@ const AddCoupon = () => {
     }),
     onSubmit: (values) => {
       formik.values.expire = new Date(values.expire).getTime();
-      dispatch(createCoupon(values));
+      if (param?.id) {
+        dispatch(updateCoupon({id: param?.id, data: values}));
+      } else {
+        dispatch(createCoupon(values));
+      }
     },
   });
+
+  useEffect(() => {
+    if (param?.id) {
+      dispatch(getOneCoupon(param?.id));
+    } else {
+      dispatch(resetCouponInfo());
+    }
+  }, [param?.id]);
 
   useEffect(() => {
     if (created) {
@@ -40,14 +63,20 @@ const AddCoupon = () => {
       formik.resetForm();
       dispatch(resetCreatedCoupon());
     }
+    if (updated) {
+      toast.success("Update brand successfully!");
+      formik.resetForm();
+      dispatch(resetUpdatedCoupon());
+      navigate("/admin/coupon-list");
+    }
     if (isError) {
       toast.error("Something went wrong!");
     }
-  }, [created, isError]);
+  }, [created, isError, updated]);
 
   return (
     <div>
-      <h3 className="mb-4 title">Add Coupon</h3>
+      <h3 className="mb-4 title">{param?.id ? "Edit" : "Add"} Coupon</h3>
       <div>
         <form action="" onSubmit={formik.handleSubmit}>
           <CustomInput
@@ -90,7 +119,7 @@ const AddCoupon = () => {
             }
           />
           <button type="submit" className="w-100 btn btn-success my-3">
-            Add
+            {param?.id ? "Save" : "Add"}
           </button>
         </form>
       </div>

@@ -56,7 +56,10 @@ const CouponList = () => {
       Date.now() < new Date(item?.expire).getTime() ? "Active" : "Expired",
     actions: (
       <>
-        <Link to="/" className="fs-4 text-primary">
+        <Link
+          to={`/admin/update-coupon/${item?._id}`}
+          className="fs-4 text-primary"
+        >
           <AiFillEdit />
         </Link>
         <Link className="ms-4 fs-4 text-danger" to="/">

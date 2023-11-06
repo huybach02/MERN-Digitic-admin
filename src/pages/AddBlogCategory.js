@@ -6,27 +6,47 @@ import {useDispatch, useSelector} from "react-redux";
 import {toast} from "react-toastify";
 import {
   createBlogCategory,
+  getOneBlogCategory,
+  resetBlogCategoryInfo,
   resetCreatedBlogCategory,
+  resetUpdatedBlogCategory,
+  updateBlogCategory,
 } from "../features/blogCategories/blogCategorySlice";
+import {useParams, useNavigate} from "react-router-dom";
 
 const AddBlogCategory = () => {
   const dispatch = useDispatch();
+  const param = useParams();
+  const navigate = useNavigate();
 
-  const {created, isError, isLoading} = useSelector(
+  const {created, isError, isLoading, blogCategoryInfo, updated} = useSelector(
     (state) => state.blogCategories
   );
 
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      title: "",
+      title: blogCategoryInfo?.title || "",
     },
     validationSchema: Yup.object({
       title: Yup.string().required("This field cannot be empty"),
     }),
     onSubmit: (values) => {
-      dispatch(createBlogCategory(values));
+      if (param?.id) {
+        dispatch(updateBlogCategory({id: param?.id, data: values}));
+      } else {
+        dispatch(createBlogCategory(values));
+      }
     },
   });
+
+  useEffect(() => {
+    if (param?.id) {
+      dispatch(getOneBlogCategory(param?.id));
+    } else {
+      dispatch(resetBlogCategoryInfo());
+    }
+  }, [param?.id]);
 
   useEffect(() => {
     if (created) {
@@ -34,14 +54,20 @@ const AddBlogCategory = () => {
       formik.resetForm();
       dispatch(resetCreatedBlogCategory());
     }
+    if (updated) {
+      toast.success("Update brand successfully!");
+      formik.resetForm();
+      dispatch(resetUpdatedBlogCategory());
+      navigate("/admin/blog-category-list");
+    }
     if (isError) {
       toast.error("Something went wrong!");
     }
-  }, [created, isError]);
+  }, [created, isError, updated]);
 
   return (
     <div>
-      <h3 className="mb-4 title">Add Blog Category</h3>
+      <h3 className="mb-4 title">{param?.id ? "Edit" : "Add"} Blog Category</h3>
       <div>
         <form action="" onSubmit={formik.handleSubmit}>
           <CustomInput
@@ -58,7 +84,7 @@ const AddBlogCategory = () => {
             }
           />
           <button type="submit" className="w-100 btn btn-success my-3">
-            Add
+            {param?.id ? "Save" : "Add"}
           </button>
         </form>
       </div>

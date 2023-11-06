@@ -6,27 +6,47 @@ import {useDispatch, useSelector} from "react-redux";
 import {toast} from "react-toastify";
 import {
   createCategory,
+  getOneCategory,
+  resetCategoryInfo,
   resetCreatedCategory,
+  resetUpdatedCategory,
+  updateCategory,
 } from "../features/productCategories/productCategorySlice";
+import {useParams, useNavigate} from "react-router-dom";
 
 const AddBlogCategory = () => {
   const dispatch = useDispatch();
+  const param = useParams();
+  const navigate = useNavigate();
 
-  const {created, isError, isLoading} = useSelector(
+  const {created, isError, isLoading, categoryInfo, updated} = useSelector(
     (state) => state.productCategories
   );
 
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      title: "",
+      title: categoryInfo?.title || "",
     },
     validationSchema: Yup.object({
       title: Yup.string().required("This field cannot be empty"),
     }),
     onSubmit: (values) => {
-      dispatch(createCategory(values));
+      if (param?.id) {
+        dispatch(updateCategory({id: param?.id, data: values}));
+      } else {
+        dispatch(createCategory(values));
+      }
     },
   });
+
+  useEffect(() => {
+    if (param?.id) {
+      dispatch(getOneCategory(param?.id));
+    } else {
+      dispatch(resetCategoryInfo());
+    }
+  }, [param?.id]);
 
   useEffect(() => {
     if (created) {
@@ -34,19 +54,25 @@ const AddBlogCategory = () => {
       formik.resetForm();
       dispatch(resetCreatedCategory());
     }
+    if (updated) {
+      toast.success("Update brand successfully!");
+      formik.resetForm();
+      dispatch(resetUpdatedCategory());
+      navigate("/admin/category-list");
+    }
     if (isError) {
       toast.error("Something went wrong!");
     }
-  }, [created, isError]);
+  }, [created, isError, updated]);
 
   return (
     <div>
-      <h3 className="mb-4 title">Add Category</h3>
+      <h3 className="mb-4 title">{param?.id ? "Edit" : "Add"} Category</h3>
       <div>
         <form action="" onSubmit={formik.handleSubmit}>
           <CustomInput
             type={"text"}
-            name={"brand"}
+            name={"category"}
             label={"Enter Category"}
             value={formik.values.title}
             onChange={formik.handleChange("title")}
@@ -58,7 +84,7 @@ const AddBlogCategory = () => {
             }
           />
           <button type="submit" className="w-100 btn btn-success my-3">
-            Add
+            {param?.id ? "Save" : "Add"}
           </button>
         </form>
       </div>

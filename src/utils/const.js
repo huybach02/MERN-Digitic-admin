@@ -39,3 +39,12 @@ export const props = {
     console.log("Dropped files", e.dataTransfer.files);
   },
 };
+
+export const changeDateFormat = (date) => {
+  const newDate = new Date(date).toLocaleDateString();
+  const newTime = new Date(date).toLocaleTimeString();
+  let [day, month, year] = newDate.split("/");
+  day = day < 10 ? `0${day}` : day;
+  month = month < 10 ? `0${month}` : month;
+  return [year, month, day].join("-") + "T" + newTime;
+};

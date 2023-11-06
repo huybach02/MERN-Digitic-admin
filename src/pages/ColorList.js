@@ -1,9 +1,15 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Table} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 import {AiFillEdit, AiFillDelete} from "react-icons/ai";
-import {getAllColors} from "../features/colors/colorSlice";
+import {
+  deleteColor,
+  getAllColors,
+  resetDeletedColor,
+} from "../features/colors/colorSlice";
+import CustomModal from "../components/CustomModal";
+import {toast} from "react-toastify";
 
 const columns = [
   {
@@ -31,9 +37,20 @@ const columns = [
 const ColorList = () => {
   const dispatch = useDispatch();
 
-  const {colors, isLoading, isError, isSuccess, msg} = useSelector(
+  const {colors, isLoading, isError, isSuccess, msg, deleted} = useSelector(
     (state) => state.colors
   );
+
+  const [open, setOpen] = useState(false);
+  const [colorId, setColorId] = useState("");
+
+  const showModal = (id) => {
+    setOpen(true);
+    setColorId(id);
+  };
+  const hideModal = () => {
+    setOpen(false);
+  };
 
   const data = colors?.map((item, index) => ({
     key: index + 1,
@@ -56,25 +73,54 @@ const ColorList = () => {
     ),
     actions: (
       <>
-        <Link to="/" className="fs-4 text-primary">
+        <Link
+          to={`/admin/update-color/${item?._id}`}
+          className="fs-4 text-primary"
+        >
           <AiFillEdit />
         </Link>
-        <Link className="ms-4 fs-4 text-danger" to="/">
+        <button
+          className="ms-4 fs-4 text-danger bg-transparent border-0"
+          onClick={() => showModal(item?._id)}
+        >
           <AiFillDelete />
-        </Link>
+        </button>
       </>
     ),
   }));
 
+  const handleDelete = (id) => {
+    dispatch(deleteColor(id));
+    setOpen(false);
+  };
+
   useEffect(() => {
     dispatch(getAllColors());
   }, []);
+
+  useEffect(() => {
+    if (deleted) {
+      toast.success("Delete color successfully!");
+      dispatch(resetDeletedColor());
+      dispatch(getAllColors());
+    }
+    if (isError) {
+      toast.error("Something went wrong!");
+    }
+  }, [deleted, isError]);
 
   return (
     <div>
       <h3 className="mb-4 title">Colors List</h3>
       <div>
         <Table columns={columns} dataSource={data} />
+        <CustomModal
+          title={"Confirm Delete?"}
+          desc={"Are you sure want to delete this color?"}
+          hideModal={hideModal}
+          open={open}
+          performAction={() => handleDelete(colorId)}
+        />
       </div>
     </div>
   );

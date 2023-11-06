@@ -53,12 +53,19 @@ function App() {
               path="add-blog-category"
               element={<AddBlogCategory />}
             ></Route>
+            <Route
+              path="update-blog-category/:id"
+              element={<AddBlogCategory />}
+            ></Route>
             <Route path="add-color" element={<AddColor />}></Route>
+            <Route path="update-color/:id" element={<AddColor />}></Route>
             <Route path="add-category" element={<AddCategory />}></Route>
+            <Route path="update-category/:id" element={<AddCategory />}></Route>
             <Route path="add-brand" element={<AddBrand />}></Route>
             <Route path="update-brand/:id" element={<AddBrand />}></Route>
             <Route path="add-product" element={<AddProduct />}></Route>
             <Route path="add-coupon" element={<AddCoupon />}></Route>
+            <Route path="update-coupon/:id" element={<AddCoupon />}></Route>
           </Route>
         </Routes>
       </BrowserRouter>

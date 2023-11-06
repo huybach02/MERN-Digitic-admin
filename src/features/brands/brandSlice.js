@@ -9,6 +9,7 @@ const initialState = {
   msg: "",
   created: false,
   updated: false,
+  deleted: false,
   brandInfo: {},
 };
 
@@ -56,6 +57,17 @@ export const updateBrand = createAsyncThunk(
   }
 );
 
+export const deleteBrand = createAsyncThunk(
+  "brand/delete-brand",
+  async (data, thunkAPI) => {
+    try {
+      return await brandService.deleteBrand(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const brandSlice = createSlice({
   name: "brands",
   initialState,
@@ -65,6 +77,9 @@ export const brandSlice = createSlice({
     },
     resetUpdatedBrand: (state) => {
       state.updated = false;
+    },
+    resetDeletedBrand: (state) => {
+      state.deleted = false;
     },
     resetBrandInfo: (state) => {
       state.brandInfo = {};
@@ -140,10 +155,32 @@ export const brandSlice = createSlice({
         state.isSuccess = false;
         state.msg = null;
         state.updated = false;
+      })
+      .addCase(deleteBrand.pending, (state) => {
+        state.isLoading = true;
+        state.deleted = false;
+        state.isError = false;
+      })
+      .addCase(deleteBrand.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.deleted = true;
+      })
+      .addCase(deleteBrand.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = action.error && true;
+        state.isSuccess = false;
+        state.msg = null;
+        state.deleted = false;
       });
   },
 });
 
 export default brandSlice.reducer;
-export const {resetCreatedBrand, resetUpdatedBrand, resetBrandInfo} =
-  brandSlice.actions;
+export const {
+  resetCreatedBrand,
+  resetUpdatedBrand,
+  resetBrandInfo,
+  resetDeletedBrand,
+} = brandSlice.actions;

@@ -8,6 +8,9 @@ const initialState = {
   isSuccess: false,
   msg: "",
   created: false,
+  updated: false,
+  deleted: false,
+  categoryInfo: {},
 };
 
 export const getAllProductCategories = createAsyncThunk(
@@ -32,12 +35,54 @@ export const createCategory = createAsyncThunk(
   }
 );
 
+export const getOneCategory = createAsyncThunk(
+  "category/get-one-category",
+  async (data, thunkAPI) => {
+    try {
+      return await productCategoryService.getOneProductCategory(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const updateCategory = createAsyncThunk(
+  "category/update-category",
+  async (data, thunkAPI) => {
+    try {
+      return await productCategoryService.updateProductCategory(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const deleteCategory = createAsyncThunk(
+  "category/delete-category",
+  async (data, thunkAPI) => {
+    try {
+      return await productCategoryService.deleteProductCategory(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const productCategoriesSlice = createSlice({
   name: "productCategories",
   initialState,
   reducers: {
     resetCreatedCategory: (state) => {
       state.created = false;
+    },
+    resetUpdatedCategory: (state) => {
+      state.updated = false;
+    },
+    resetDeletedCategory: (state) => {
+      state.deleted = false;
+    },
+    resetCategoryInfo: (state) => {
+      state.categoryInfo = {};
     },
   },
   extraReducers: (builder) => {
@@ -75,9 +120,67 @@ export const productCategoriesSlice = createSlice({
         state.isSuccess = false;
         state.msg = null;
         state.created = false;
+      })
+      .addCase(getOneCategory.pending, (state) => {
+        state.isLoading = true;
+        state.categoryInfo = {};
+      })
+      .addCase(getOneCategory.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.categoryInfo = action.payload;
+      })
+      .addCase(getOneCategory.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.categoryInfo = null;
+        state.msg = action.payload;
+      })
+      .addCase(updateCategory.pending, (state) => {
+        state.isLoading = true;
+        state.updated = false;
+        state.isError = false;
+      })
+      .addCase(updateCategory.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.updated = true;
+      })
+      .addCase(updateCategory.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = action.error && true;
+        state.isSuccess = false;
+        state.msg = null;
+        state.updated = false;
+      })
+      .addCase(deleteCategory.pending, (state) => {
+        state.isLoading = true;
+        state.deleted = false;
+        state.isError = false;
+      })
+      .addCase(deleteCategory.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.deleted = true;
+      })
+      .addCase(deleteCategory.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = action.error && true;
+        state.isSuccess = false;
+        state.msg = null;
+        state.deleted = false;
       });
   },
 });
 
 export default productCategoriesSlice.reducer;
-export const {resetCreatedCategory} = productCategoriesSlice.actions;
+export const {
+  resetCreatedCategory,
+  resetCategoryInfo,
+  resetDeletedCategory,
+  resetUpdatedCategory,
+} = productCategoriesSlice.actions;
