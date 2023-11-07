@@ -68,7 +68,6 @@ const Enquiries = () => {
           className="form-control form-select"
           name=""
           id=""
-          defaultValue={"abc"}
           onChange={(e) => setStatus({id: item?._id, status: e.target.value})}
         >
           <option value={item?.status}>{item?.status}</option>

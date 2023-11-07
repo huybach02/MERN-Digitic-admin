@@ -16,9 +16,24 @@ const getAllOrders = async () => {
   return res.data;
 };
 
+const getOrderById = async (id) => {
+  const res = await axiosConfig.get(`/user/get-order-by-id/${id}`);
+  return res.data.data;
+};
+
+const updateOrderStatus = async ({id, data}) => {
+  const res = await axiosConfig.put(
+    `/user/order/update-order-status/${id}`,
+    data
+  );
+  return res.data.data;
+};
+
 const authServices = {
   login,
   getAllOrders,
+  getOrderById,
+  updateOrderStatus,
 };
 
 export default authServices;

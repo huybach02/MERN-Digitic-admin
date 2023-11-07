@@ -1,10 +1,24 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Table} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 import {AiFillEdit, AiFillDelete} from "react-icons/ai";
-import {getAllOrders} from "../features/auth/authSlice";
+import {
+  getAllOrders,
+  resetUpdatedOrderStatus,
+  updateOrderStatus,
+} from "../features/auth/authSlice";
 import moment from "moment";
+import {toast} from "react-toastify";
+
+const statusOption = [
+  "Confirmed",
+  "Dispatched",
+  "Processing",
+  "Wait for pay",
+  "Delivered",
+  "Canceled",
+];
 
 const columns = [
   {
@@ -33,16 +47,14 @@ const columns = [
     title: "Status",
     dataIndex: "status",
   },
-  {
-    title: "Actions",
-    dataIndex: "actions",
-  },
 ];
 
 const Orders = () => {
   const dispatch = useDispatch();
 
-  const {orders, isLoading, isError, isSuccess, msg} = useSelector(
+  const [status, setStatus] = useState("");
+
+  const {orders, isLoading, isError, isSuccess, msg, updated} = useSelector(
     (state) => state.auth
   );
 
@@ -65,37 +77,27 @@ const Orders = () => {
         </p>
       </>
     ),
-
-    product: item?.products?.map((i, index) => (
-      <div className="order-product d-flex ic gap-3 py-2">
-        <span>{index + 1}.</span>
-        <div className="d-flex flex-column gap-1">
-          <p className="mb-1 text-start">
-            <strong>Product: </strong>
-            {i.product.title}
-          </p>
-          <p className="mb-1 text-start">
-            <strong>Color: </strong>
-            {i.color}
-          </p>
-          <p className="mb-1 text-start">
-            <strong>Count: </strong>
-            {i.count}
-          </p>
-        </div>
-      </div>
-    )),
+    product: <Link to={`/admin/order/${item?._id}`}>View Order</Link>,
     amount: "$ " + item?.paymentIntent?.amount,
     date: moment(item?.createdAt).format("DD/MM/YYYY, h:mm:ss A"),
-    status: item?.orderStatus,
-    actions: (
+    status: (
       <>
-        <Link to="/" className="fs-4 text-primary">
-          <AiFillEdit />
-        </Link>
-        <Link className="ms-4 fs-4 text-danger" to="/">
-          <AiFillDelete />
-        </Link>
+        <select
+          className="form-control form-select"
+          name=""
+          id=""
+          defaultValue={"abc"}
+          onChange={(e) => setStatus({id: item?._id, status: e.target.value})}
+        >
+          <option value={item?.orderStatus}>{item?.orderStatus}</option>
+          {statusOption
+            .filter((i) => i !== item?.orderStatus)
+            ?.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+        </select>
       </>
     ),
   }));
@@ -103,6 +105,25 @@ const Orders = () => {
   useEffect(() => {
     dispatch(getAllOrders());
   }, []);
+
+  useEffect(() => {
+    if (status) {
+      dispatch(
+        updateOrderStatus({id: status?.id, data: {status: status.status}})
+      );
+    }
+  }, [status]);
+
+  useEffect(() => {
+    if (updated) {
+      toast.success("Update order successfully!");
+      dispatch(resetUpdatedOrderStatus());
+      dispatch(getAllOrders());
+    }
+    if (isError) {
+      toast.error("Something went wrong!");
+    }
+  }, [isError, updated]);
 
   return (
     <div>

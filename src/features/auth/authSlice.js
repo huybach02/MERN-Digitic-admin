@@ -12,6 +12,8 @@ const initialState = {
   isLoading: false,
   isSuccess: false,
   msg: null,
+  orderInfo: {},
+  updated: false,
 };
 
 export const login = createAsyncThunk(
@@ -36,6 +38,28 @@ export const getAllOrders = createAsyncThunk(
   }
 );
 
+export const getOrderById = createAsyncThunk(
+  "auth/get-order-by-id",
+  async (data, thunkAPI) => {
+    try {
+      return await authServices.getOrderById(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const updateOrderStatus = createAsyncThunk(
+  "auth/update-order-status",
+  async (data, thunkAPI) => {
+    try {
+      return await authServices.updateOrderStatus(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -47,6 +71,12 @@ export const authSlice = createSlice({
       state.isSuccess = false;
       state.msg = null;
       localStorage.removeItem("user");
+    },
+    resetOrderInfo: (state) => {
+      state.orderInfo = {};
+    },
+    resetUpdatedOrderStatus: (state) => {
+      state.updated = false;
     },
   },
   extraReducers: (builder) => {
@@ -86,9 +116,44 @@ export const authSlice = createSlice({
         state.isError = action.error && true;
         state.orders = null;
         state.msg = null;
+      })
+      .addCase(getOrderById.pending, (state) => {
+        state.isLoading = true;
+        state.orderInfo = {};
+      })
+      .addCase(getOrderById.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.orderInfo = action.payload;
+      })
+      .addCase(getOrderById.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.orderInfo = null;
+        state.msg = action.payload;
+      })
+      .addCase(updateOrderStatus.pending, (state) => {
+        state.isLoading = true;
+        state.updated = false;
+        state.isError = false;
+      })
+      .addCase(updateOrderStatus.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.updated = true;
+      })
+      .addCase(updateOrderStatus.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = action.error && true;
+        state.isSuccess = false;
+        state.msg = null;
+        state.updated = false;
       });
   },
 });
 
 export default authSlice.reducer;
-export const {logout} = authSlice.actions;
+export const {logout, resetUpdatedOrderStatus} = authSlice.actions;
