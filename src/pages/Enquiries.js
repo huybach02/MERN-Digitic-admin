@@ -1,9 +1,17 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Table} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 import {AiFillEdit, AiFillDelete} from "react-icons/ai";
-import {getAllEnquiries} from "../features/enquiry/enquirySlice";
+import {
+  getAllEnquiries,
+  resetUpdatedEnquiry,
+  updateEnquiry,
+} from "../features/enquiry/enquirySlice";
+import {toast} from "react-toastify";
+import {useNavigate} from "react-router-dom";
+
+const statusOption = ["Submitted", "Contacted", "Progressing", "Finished"];
 
 const columns = [
   {
@@ -36,16 +44,15 @@ const columns = [
     title: "Status",
     dataIndex: "status",
   },
-  {
-    title: "Actions",
-    dataIndex: "actions",
-  },
 ];
 
 const Enquiries = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const {enquiries, isLoading, isError, isSuccess, msg} = useSelector(
+  const [status, setStatus] = useState("");
+
+  const {enquiries, isLoading, isError, isSuccess, msg, updated} = useSelector(
     (state) => state.enquiries
   );
 
@@ -57,19 +64,22 @@ const Enquiries = () => {
     content: <p className="enquiry-content">{item?.comment}</p>,
     status: (
       <>
-        <select className="form-control form-select" name="" id="">
-          <option value="">{item?.status}</option>
+        <select
+          className="form-control form-select"
+          name=""
+          id=""
+          defaultValue={"abc"}
+          onChange={(e) => setStatus({id: item?._id, status: e.target.value})}
+        >
+          <option value={item?.status}>{item?.status}</option>
+          {statusOption
+            .filter((i) => i !== item?.status)
+            ?.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
         </select>
-      </>
-    ),
-    actions: (
-      <>
-        <Link to="/" className="fs-4 text-primary">
-          <AiFillEdit />
-        </Link>
-        <Link className="ms-4 fs-4 text-danger" to="/">
-          <AiFillDelete />
-        </Link>
       </>
     ),
   }));
@@ -77,6 +87,23 @@ const Enquiries = () => {
   useEffect(() => {
     dispatch(getAllEnquiries());
   }, []);
+
+  useEffect(() => {
+    if (status) {
+      dispatch(updateEnquiry({id: status?.id, data: {status: status.status}}));
+    }
+  }, [status]);
+
+  useEffect(() => {
+    if (updated) {
+      toast.success("Update brand successfully!");
+      dispatch(resetUpdatedEnquiry());
+      dispatch(getAllEnquiries());
+    }
+    if (isError) {
+      toast.error("Something went wrong!");
+    }
+  }, [isError, updated]);
 
   return (
     <div>

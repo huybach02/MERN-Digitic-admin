@@ -7,6 +7,7 @@ const initialState = {
   isLoading: false,
   isSuccess: false,
   msg: "",
+  updated: false,
 };
 
 export const getAllEnquiries = createAsyncThunk(
@@ -20,10 +21,25 @@ export const getAllEnquiries = createAsyncThunk(
   }
 );
 
+export const updateEnquiry = createAsyncThunk(
+  "enquiry/update-enquiry",
+  async (data, thunkAPI) => {
+    try {
+      return await enquiryService.updateEnquiry(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const enquirySlice = createSlice({
   name: "enquiries",
   initialState,
-  reducers: {},
+  reducers: {
+    resetUpdatedEnquiry: (state) => {
+      state.updated = false;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getAllEnquiries.pending, (state) => {
@@ -41,8 +57,27 @@ export const enquirySlice = createSlice({
         state.isSuccess = false;
         state.enquiries = null;
         state.msg = action.payload;
+      })
+      .addCase(updateEnquiry.pending, (state) => {
+        state.isLoading = true;
+        state.updated = false;
+        state.isError = false;
+      })
+      .addCase(updateEnquiry.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.updated = true;
+      })
+      .addCase(updateEnquiry.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = action.error && true;
+        state.isSuccess = false;
+        state.msg = null;
+        state.updated = false;
       });
   },
 });
 
 export default enquirySlice.reducer;
+export const {resetUpdatedEnquiry} = enquirySlice.actions;

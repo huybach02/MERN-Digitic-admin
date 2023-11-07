@@ -20,7 +20,9 @@ import {useFormik} from "formik";
 import * as Yup from "yup";
 import {
   createBlog,
+  deleteImageFromBlogInfo,
   getOneBlog,
+  resetBlogInfo,
   resetCreatedBlog,
   resetUpdatedBlog,
   updateBlog,
@@ -55,6 +57,11 @@ const AddBlog = () => {
         category: blogInfo?.category,
       });
     } else {
+      formik.setValues({
+        title: "",
+        description: "",
+        category: "",
+      });
       setImageList([]);
     }
   }, [blogInfo, param?.id]);
@@ -71,7 +78,6 @@ const AddBlog = () => {
       category: Yup.string().required("This field cannot be empty"),
     }),
     onSubmit: (values) => {
-      console.log("values: ", values);
       if (param?.id) {
         dispatch(updateBlog({id: param?.id, data: values}));
       } else {
@@ -85,7 +91,6 @@ const AddBlog = () => {
       dispatch(getOneBlog(param?.id));
     } else {
       dispatch(resetBlogCategoryInfo());
-      setImageList([]);
     }
   }, [param?.id]);
 
@@ -94,8 +99,12 @@ const AddBlog = () => {
   }, []);
 
   useEffect(() => {
-    setImageList(blogInfo?.images || images?.data);
-  }, [images?.data, blogInfo?.images]);
+    if (param?.id) {
+      setImageList(blogInfo?.images);
+    } else {
+      setImageList(images?.data);
+    }
+  }, [images?.data, blogInfo?.images, param?.id]);
 
   useEffect(() => {
     if (param?.id) {
@@ -129,6 +138,7 @@ const AddBlog = () => {
       );
       console.log("newImgList: ", newImgList);
       setImageList(newImgList);
+      dispatch(deleteImageFromBlogInfo(deletedImageId));
       dispatch(resetDeletedImageId());
       formik.values.images = newImgList?.map((item) => ({
         public_id: item.public_id,
@@ -150,7 +160,10 @@ const AddBlog = () => {
     if (updated) {
       toast.success("Update blog successfully!");
       formik.resetForm();
+      setImageList([]);
+      dispatch(resetBlogInfo());
       dispatch(resetUpdatedBlog());
+      dispatch(resetImages());
       navigate("/admin/blog-list");
     }
     if (isError) {
@@ -160,7 +173,7 @@ const AddBlog = () => {
 
   return (
     <div>
-      <h3 className="mb-4 title">Add New Blog</h3>
+      <h3 className="mb-4 title">{param?.id ? "Edit" : "Add"} Blog</h3>
       <div>
         <form action="" onSubmit={formik.handleSubmit}>
           <CustomInput
@@ -248,7 +261,7 @@ const AddBlog = () => {
             </div>
           </div>
           <button type="submit" className="w-100 btn btn-success my-5">
-            Add Blog
+            {param?.id ? "Save" : "Add"}
           </button>
         </form>
       </div>

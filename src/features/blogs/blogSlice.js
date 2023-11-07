@@ -85,6 +85,16 @@ export const blogSlice = createSlice({
     resetBlogInfo: (state) => {
       state.blogInfo = {};
     },
+    deleteImageFromBlogInfo: (state, action) => {
+      state?.blogInfo?.images?.splice(
+        state.blogInfo.images.findIndex(
+          (el) => el.public_id === action.payload
+        ),
+        1
+      );
+      // action.payload &&
+      //   state.blogInfo.images.map((item) => item.public_id !== action.payload);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -184,4 +194,5 @@ export const {
   resetBlogInfo,
   resetDeletedBlog,
   resetUpdatedBlog,
+  deleteImageFromBlogInfo,
 } = blogSlice.actions;
