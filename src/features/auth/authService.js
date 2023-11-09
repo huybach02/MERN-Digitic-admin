@@ -29,11 +29,17 @@ const updateOrderStatus = async ({id, data}) => {
   return res.data.data;
 };
 
+const getMonthlyOrders = async () => {
+  const res = await axiosConfig.get(`/user/getMonthWiseOrderIncome`);
+  return res.data;
+};
+
 const authServices = {
   login,
   getAllOrders,
   getOrderById,
   updateOrderStatus,
+  getMonthlyOrders,
 };
 
 export default authServices;

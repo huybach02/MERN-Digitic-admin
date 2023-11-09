@@ -14,6 +14,7 @@ const initialState = {
   msg: null,
   orderInfo: {},
   updated: false,
+  monthlyOrdersInfo: [],
 };
 
 export const login = createAsyncThunk(
@@ -54,6 +55,17 @@ export const updateOrderStatus = createAsyncThunk(
   async (data, thunkAPI) => {
     try {
       return await authServices.updateOrderStatus(data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getMonthlyOrders = createAsyncThunk(
+  "auth/getMonthlyOrders",
+  async (thunkAPI) => {
+    try {
+      return await authServices.getMonthlyOrders();
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
     }
@@ -151,6 +163,23 @@ export const authSlice = createSlice({
         state.isSuccess = false;
         state.msg = null;
         state.updated = false;
+      })
+      .addCase(getMonthlyOrders.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getMonthlyOrders.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.monthlyOrdersInfo = action.payload;
+        state.msg = null;
+      })
+      .addCase(getMonthlyOrders.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = false;
+        state.isError = action.error && true;
+        state.monthlyOrdersInfo = null;
+        state.msg = null;
       });
   },
 });

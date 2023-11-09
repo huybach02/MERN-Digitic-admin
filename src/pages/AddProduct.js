@@ -20,6 +20,7 @@ import {
   resetCreatedProduct,
 } from "../features/products/productSlice";
 import {toast} from "react-toastify";
+import Loading from "../components/Loading";
 
 const tagList = [
   {
@@ -325,6 +326,11 @@ const AddProduct = () => {
           </div>
           <div className="mt-4">
             <h6 className="pb-2">Preview:</h6>
+            {isLoadingImage && (
+              <div className="text-center">
+                <Loading size={"large"} />
+              </div>
+            )}
             <div className="d-flex ic flex-wrap gap-2">
               {imageList?.map((item, index) => (
                 <div key={index} className="preview-images position-relative">

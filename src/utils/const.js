@@ -48,3 +48,9 @@ export const changeDateFormat = (date) => {
   month = month < 10 ? `0${month}` : month;
   return [year, month, day].join("-") + "T" + newTime;
 };
+
+export const handleRate = (prevMonth, thisMonth) => {
+  const rate = (+thisMonth * 100) / +prevMonth;
+
+  return (rate - 100).toFixed(2);
+};
