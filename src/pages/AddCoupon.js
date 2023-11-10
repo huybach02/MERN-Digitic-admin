@@ -59,12 +59,12 @@ const AddCoupon = () => {
 
   useEffect(() => {
     if (created) {
-      toast.success("Create brand successfully!");
+      toast.success("Create coupon successfully!");
       formik.resetForm();
       dispatch(resetCreatedCoupon());
     }
     if (updated) {
-      toast.success("Update brand successfully!");
+      toast.success("Update coupon successfully!");
       formik.resetForm();
       dispatch(resetUpdatedCoupon());
       navigate("/admin/coupon-list");

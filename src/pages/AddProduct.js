@@ -12,15 +12,22 @@ import {Select} from "antd";
 import Dropzone from "react-dropzone";
 import {
   deleteImage,
+  resetDeletedImageId,
   resetImages,
   uploadImage,
 } from "../features/upload/uploadSlice";
 import {
   createProduct,
+  deleteImageFromProductInfo,
+  getOneProduct,
   resetCreatedProduct,
+  resetProductInfo,
+  resetUpdatedProduct,
+  updateProduct,
 } from "../features/products/productSlice";
 import {toast} from "react-toastify";
 import Loading from "../components/Loading";
+import {useParams, useNavigate} from "react-router-dom";
 
 const tagList = [
   {
@@ -39,19 +46,28 @@ const tagList = [
 
 const AddProduct = () => {
   const dispatch = useDispatch();
+  const param = useParams();
+  const navigate = useNavigate();
 
-  const [desc, setDesc] = useState();
   const [colorSelected, setColorSelected] = useState([]);
+  const [newImageSelected, setNewImageSelected] = useState();
+  console.log("newImageSelected: ", newImageSelected);
   const [tagSelected, setTagSelected] = useState([]);
   const [imageList, setImageList] = useState([]);
+  console.log("imageList: ", imageList);
 
   const {brands} = useSelector((state) => state.brands);
   const {productCategories} = useSelector((state) => state.productCategories);
   const {colors} = useSelector((state) => state.colors);
-  const {images, isLoading: isLoadingImage} = useSelector(
-    (state) => state.upload
+  const {
+    images,
+    isLoading: isLoadingImage,
+    deletedImageId,
+  } = useSelector((state) => state.upload);
+  console.log("deletedImageId: ", deletedImageId);
+  const {created, isError, isLoading, productInfo, updated} = useSelector(
+    (state) => state.products
   );
-  const {created, isError, isLoading} = useSelector((state) => state.products);
 
   const colorList = [];
   colors.forEach((item) => {
@@ -60,6 +76,29 @@ const AddProduct = () => {
       value: item._id,
     });
   });
+
+  useEffect(() => {
+    if (productInfo && param?.id) {
+      formik.setValues({
+        title: productInfo?.title,
+        description: productInfo?.description,
+        category: productInfo?.category,
+        brand: productInfo?.brand,
+        price: productInfo?.price,
+        quantity: productInfo?.quantity,
+      });
+    } else {
+      formik.setValues({
+        title: "",
+        description: "",
+        category: "",
+        brand: "",
+        price: "",
+        quantity: "",
+      });
+      setImageList([]);
+    }
+  }, [productInfo, param?.id]);
 
   const formik = useFormik({
     initialValues: {
@@ -91,14 +130,22 @@ const AddProduct = () => {
         .required("This field cannot be empty"),
     }),
     onSubmit: (values) => {
-      console.log(values);
-      dispatch(createProduct(values));
+      console.log("values: ", values);
+      if (param?.id) {
+        dispatch(updateProduct({id: param?.id, data: values}));
+      } else {
+        dispatch(createProduct(values));
+      }
     },
   });
 
-  const handleDesc = (e) => {
-    setDesc(e);
-  };
+  useEffect(() => {
+    if (param?.id) {
+      dispatch(getOneProduct(param?.id));
+    } else {
+      dispatch(resetProductInfo());
+    }
+  }, [param?.id]);
 
   useEffect(() => {
     dispatch(getAllBrands());
@@ -109,15 +156,74 @@ const AddProduct = () => {
   useEffect(() => {
     formik.values.color = colorSelected;
     formik.values.tags = tagSelected;
-  }, [colorSelected, tagSelected]);
+  }, [colorSelected, tagSelected, param?.id]);
 
   useEffect(() => {
-    setImageList(images?.data);
-  }, [images?.data]);
-  formik.values.images = imageList?.map((item) => ({
-    public_id: item.public_id,
-    url: item.url,
-  }));
+    if (param?.id) {
+      setImageList(productInfo?.images);
+    } else {
+      setImageList(images?.data);
+    }
+  }, [images?.data, productInfo?.images, param?.id]);
+
+  useEffect(() => {
+    if (param?.id) {
+      if (images?.data?.length > 0) {
+        let img = imageList?.map((item) => ({
+          public_id: item.public_id,
+          url: item.url,
+        }));
+        img = [
+          ...img,
+          ...images?.data?.map((i) => ({
+            public_id: i.public_id,
+            url: i.url,
+          })),
+        ];
+        formik.values.images = img;
+        setImageList(img);
+      }
+    } else {
+      if (images?.data) {
+        formik.values.images = images?.data?.map((item) => ({
+          public_id: item.public_id,
+          url: item.url,
+        }));
+      }
+    }
+  }, [param?.id, images?.data]);
+
+  // useEffect(() => {
+  //   setImageList(images?.data);
+  // }, [images?.data]);
+
+  useEffect(() => {
+    if (deletedImageId) {
+      setNewImageSelected(
+        imageList.filter((item) => item.public_id !== deletedImageId)
+      );
+      // dispatch(deleteImageFromProductInfo(deletedImageId));
+      dispatch(resetDeletedImageId());
+      // formik.values.images = imageList?.map((item) => ({
+      //   public_id: item.public_id,
+      //   url: item.url,
+      // }));
+    }
+  }, [deletedImageId]);
+
+  useEffect(() => {
+    newImageSelected && setImageList(newImageSelected);
+  }, [newImageSelected]);
+
+  formik.values.images = newImageSelected
+    ? newImageSelected?.map((item) => ({
+        public_id: item.public_id,
+        url: item.url,
+      }))
+    : imageList?.map((item) => ({
+        public_id: item.public_id,
+        url: item.url,
+      }));
 
   useEffect(() => {
     if (created) {
@@ -129,10 +235,24 @@ const AddProduct = () => {
       dispatch(resetCreatedProduct());
       dispatch(resetImages());
     }
+    if (updated) {
+      toast.success("Update product successfully!");
+      formik.resetForm();
+      setImageList([]);
+      dispatch(resetProductInfo());
+      dispatch(resetUpdatedProduct());
+      dispatch(resetImages());
+      navigate("/admin/product-list");
+    }
     if (isError) {
       toast.error("Something went wrong!");
     }
-  }, [created, isError]);
+  }, [created, isError, updated]);
+
+  useEffect(() => {
+    setColorSelected(productInfo?.color?.map((item) => item._id));
+    setTagSelected(productInfo?.tags);
+  }, [productInfo]);
 
   const handleColor = (item) => {
     setColorSelected(item);
@@ -143,7 +263,7 @@ const AddProduct = () => {
 
   return (
     <div>
-      <h3 className="mb-4 title">Add Product</h3>
+      <h3 className="mb-4 title">{param?.id ? "Edit" : "Add"} Product</h3>
       <div>
         <form action="" onSubmit={formik.handleSubmit}>
           <CustomInput
@@ -344,7 +464,7 @@ const AddProduct = () => {
             </div>
           </div>
           <button type="submit" className="w-100 btn btn-success my-5">
-            Add
+            {param?.id ? "Save" : "Add"}
           </button>
         </form>
       </div>

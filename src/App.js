@@ -67,6 +67,7 @@ function App() {
             <Route path="add-brand" element={<AddBrand />}></Route>
             <Route path="update-brand/:id" element={<AddBrand />}></Route>
             <Route path="add-product" element={<AddProduct />}></Route>
+            <Route path="update-product/:id" element={<AddProduct />}></Route>
             <Route path="add-coupon" element={<AddCoupon />}></Route>
             <Route path="update-coupon/:id" element={<AddCoupon />}></Route>
           </Route>

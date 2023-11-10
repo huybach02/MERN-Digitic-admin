@@ -55,7 +55,7 @@ const AddBlogCategory = () => {
       dispatch(resetCreatedCategory());
     }
     if (updated) {
-      toast.success("Update brand successfully!");
+      toast.success("Update category successfully!");
       formik.resetForm();
       dispatch(resetUpdatedCategory());
       navigate("/admin/category-list");

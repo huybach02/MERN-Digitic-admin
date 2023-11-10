@@ -95,7 +95,7 @@ const Enquiries = () => {
 
   useEffect(() => {
     if (updated) {
-      toast.success("Update brand successfully!");
+      toast.success("Update enquiry successfully!");
       dispatch(resetUpdatedEnquiry());
       dispatch(getAllEnquiries());
     }

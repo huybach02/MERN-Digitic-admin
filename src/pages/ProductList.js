@@ -1,9 +1,15 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Table} from "antd";
 import {AiFillEdit, AiFillDelete} from "react-icons/ai";
 import {useDispatch, useSelector} from "react-redux";
-import {getAllProducts} from "../features/products/productSlice";
+import {
+  deleteProduct,
+  getAllProducts,
+  resetDeletedProduct,
+} from "../features/products/productSlice";
 import {Link} from "react-router-dom";
+import CustomModal from "../components/CustomModal";
+import {toast} from "react-toastify";
 
 const columns = [
   {
@@ -53,9 +59,20 @@ const columns = [
 const ProductList = () => {
   const dispatch = useDispatch();
 
-  const {products, isLoading, isError, isSuccess, msg} = useSelector(
+  const {products, isLoading, isError, isSuccess, msg, deleted} = useSelector(
     (state) => state.products
   );
+
+  const [open, setOpen] = useState(false);
+  const [brandId, setBrandId] = useState("");
+
+  const showModal = (id) => {
+    setOpen(true);
+    setBrandId(id);
+  };
+  const hideModal = () => {
+    setOpen(false);
+  };
 
   const data = products?.map((item, index) => ({
     key: index + 1,
@@ -88,25 +105,54 @@ const ProductList = () => {
     price: "$ " + item?.price,
     actions: (
       <>
-        <Link to="/" className="fs-4 text-primary">
+        <Link
+          to={`/admin/update-product/${item?._id}`}
+          className="fs-4 text-primary"
+        >
           <AiFillEdit />
         </Link>
-        <Link className="ms-4 fs-4 text-danger" to="/">
+        <button
+          className="ms-4 fs-4 text-danger bg-transparent border-0"
+          onClick={() => showModal(item?._id)}
+        >
           <AiFillDelete />
-        </Link>
+        </button>
       </>
     ),
   }));
 
+  const handleDelete = (id) => {
+    dispatch(deleteProduct(id));
+    setOpen(false);
+  };
+
   useEffect(() => {
     dispatch(getAllProducts());
   }, []);
+
+  useEffect(() => {
+    if (deleted) {
+      toast.success("Delete product successfully!");
+      dispatch(resetDeletedProduct());
+      dispatch(getAllProducts());
+    }
+    if (isError) {
+      toast.error("Something went wrong!");
+    }
+  }, [deleted, isError]);
 
   return (
     <div>
       <h3 className="mb-4 title">Products List</h3>
       <div>
         <Table columns={columns} dataSource={data} />
+        <CustomModal
+          title={"Confirm Delete?"}
+          desc={"Are you sure want to delete this product?"}
+          hideModal={hideModal}
+          open={open}
+          performAction={() => handleDelete(brandId)}
+        />
       </div>
     </div>
   );

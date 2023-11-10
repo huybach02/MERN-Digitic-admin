@@ -305,7 +305,7 @@ const Dashboard = () => {
             <h3 className="desc fw-bold mb-5">Income This Month</h3>
             <h3 className="mb-0 sub-title">
               {"$ " +
-                monthlyOrdersInfo.find(
+                monthlyOrdersInfo?.find(
                   (item) => +item?._id?.month === new Date().getMonth() + 1
                 )?.amount}
             </h3>
@@ -353,7 +353,7 @@ const Dashboard = () => {
           <div>
             <h3 className="desc fw-bold mb-5">Orders This Month</h3>
             <h3 className="mb-0 sub-title">
-              {monthlyOrdersInfo.find(
+              {monthlyOrdersInfo?.find(
                 (item) => +item?._id?.month === new Date().getMonth() + 1
               )?.count + " order"}
             </h3>

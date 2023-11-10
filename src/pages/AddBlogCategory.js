@@ -50,12 +50,12 @@ const AddBlogCategory = () => {
 
   useEffect(() => {
     if (created) {
-      toast.success("Create category successfully!");
+      toast.success("Create blog category successfully!");
       formik.resetForm();
       dispatch(resetCreatedBlogCategory());
     }
     if (updated) {
-      toast.success("Update brand successfully!");
+      toast.success("Update blog category successfully!");
       formik.resetForm();
       dispatch(resetUpdatedBlogCategory());
       navigate("/admin/blog-category-list");
