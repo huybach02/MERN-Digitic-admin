@@ -44,15 +44,16 @@ const ViewOrder = () => {
   const param = useParams();
 
   const {orderInfo} = useSelector((state) => state.auth);
+  console.log("orderInfo: ", orderInfo);
 
-  const data = orderInfo?.products?.map((item, index) => ({
+  const data = orderInfo?.orderItems?.map((item, index) => ({
     key: index + 1,
     name: item?.product?.title,
     brand: item?.product?.brand,
-    color: item?.color,
+    color: item?.color?.title,
     price: "$ " + item?.product?.price,
-    quantity: item?.count,
-    into: "$ " + item?.product?.price * item?.count,
+    quantity: item?.quantity,
+    into: "$ " + item?.price * item?.quantity,
   }));
 
   useEffect(() => {
@@ -73,10 +74,11 @@ const ViewOrder = () => {
           Detail Order By
           <strong>
             {" "}
-            {orderInfo?.orderBy?.firstname} {orderInfo?.orderBy?.lastname}
+            {orderInfo?.shippingInfo?.firstname}{" "}
+            {orderInfo?.shippingInfo?.lastname}
           </strong>
         </span>
-        <span>Total: $ {orderInfo?.paymentIntent?.amount}</span>
+        <span>Total: $ {orderInfo?.totalPriceAfterDiscount}</span>
       </h3>
       <div>
         <Table columns={columns} dataSource={data} />

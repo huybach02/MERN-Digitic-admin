@@ -64,21 +64,21 @@ const Orders = () => {
       <>
         <p className="mb-1 text-start">
           <strong>Name:</strong>{" "}
-          {`${item?.orderBy?.firstname} ${item?.orderBy?.lastname}`}
+          {`${item?.shippingInfo?.firstname} ${item?.shippingInfo?.lastname}`}
         </p>
         <p className="mb-1 text-start">
-          <strong>Email:</strong> {item?.orderBy?.email}
+          <strong>Country:</strong> {item?.shippingInfo?.country}
         </p>
         <p className="mb-1 text-start">
-          <strong>Phone:</strong> {item?.orderBy?.mobile}
+          <strong>State:</strong> {item?.shippingInfo?.state}
         </p>
         <p className="mb-1 text-start">
-          <strong>Address:</strong> {item?.orderBy?.address}
+          <strong>Address:</strong> {item?.shippingInfo?.address}
         </p>
       </>
     ),
     product: <Link to={`/admin/order/${item?._id}`}>View Order</Link>,
-    amount: "$ " + item?.paymentIntent?.amount,
+    amount: "$ " + item?.totalPriceAfterDiscount,
     date: moment(item?.createdAt).format("DD/MM/YYYY, h:mm:ss A"),
     status: (
       <>
