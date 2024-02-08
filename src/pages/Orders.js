@@ -75,6 +75,9 @@ const Orders = () => {
         <p className="mb-1 text-start">
           <strong>Address:</strong> {item?.shippingInfo?.address}
         </p>
+        <p className="mb-1 text-start">
+          <strong>Payment method:</strong> {item?.paymentInfo || "COD"}
+        </p>
       </>
     ),
     product: <Link to={`/admin/order/${item?._id}`}>View Order</Link>,

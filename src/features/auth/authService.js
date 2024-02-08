@@ -34,12 +34,18 @@ const getMonthlyOrders = async () => {
   return res.data;
 };
 
+const getMonthlyTotalOrders = async () => {
+  const res = await axiosConfig.get(`/user/getMonthWiseOrder`);
+  return res.data;
+};
+
 const authServices = {
   login,
   getAllOrders,
   getOrderById,
   updateOrderStatus,
   getMonthlyOrders,
+  getMonthlyTotalOrders,
 };
 
 export default authServices;

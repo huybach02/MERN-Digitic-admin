@@ -50,7 +50,9 @@ export const changeDateFormat = (date) => {
 };
 
 export const handleRate = (prevMonth, thisMonth) => {
+  if (prevMonth === 0) {
+    return thisMonth * 100;
+  }
   const rate = (+thisMonth * 100) / +prevMonth;
-
   return (rate - 100).toFixed(2);
 };

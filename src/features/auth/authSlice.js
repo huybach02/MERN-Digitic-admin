@@ -14,7 +14,8 @@ const initialState = {
   msg: null,
   orderInfo: {},
   updated: false,
-  monthlyOrdersInfo: [],
+  monthlyIncomes: [],
+  monthlyOrders: [],
 };
 
 export const login = createAsyncThunk(
@@ -61,11 +62,22 @@ export const updateOrderStatus = createAsyncThunk(
   }
 );
 
-export const getMonthlyOrders = createAsyncThunk(
-  "auth/getMonthlyOrders",
+export const getMonthlyIncomes = createAsyncThunk(
+  "auth/getMonthWiseOrderIncome",
   async (thunkAPI) => {
     try {
       return await authServices.getMonthlyOrders();
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getMonthlyOrders = createAsyncThunk(
+  "auth/getMonthWiseOrder",
+  async (thunkAPI) => {
+    try {
+      return await authServices.getMonthlyTotalOrders();
     } catch (error) {
       return thunkAPI.rejectWithValue(error);
     }
@@ -164,6 +176,23 @@ export const authSlice = createSlice({
         state.msg = null;
         state.updated = false;
       })
+      .addCase(getMonthlyIncomes.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getMonthlyIncomes.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.monthlyIncomes = action.payload;
+        state.msg = null;
+      })
+      .addCase(getMonthlyIncomes.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = false;
+        state.isError = action.error && true;
+        state.monthlyIncomes = null;
+        state.msg = null;
+      })
       .addCase(getMonthlyOrders.pending, (state) => {
         state.isLoading = true;
       })
@@ -171,14 +200,14 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
-        state.monthlyOrdersInfo = action.payload;
+        state.monthlyOrders = action.payload;
         state.msg = null;
       })
       .addCase(getMonthlyOrders.rejected, (state, action) => {
         state.isLoading = false;
         state.isSuccess = false;
         state.isError = action.error && true;
-        state.monthlyOrdersInfo = null;
+        state.monthlyOrders = null;
         state.msg = null;
       });
   },
